@@ -140,7 +140,8 @@ const CONFIG_KEY='tdr_supabase_config_v1';
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmt(n){return Number(n||0).toLocaleString('es-MX')}
 function msg(id,t,ok=false){$(id).textContent=t;$(id).style.color=ok?'#16865b':'#b42318'}
-function getConfig(){try{return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}')}catch(e){return {}}}\nconst DEFAULT_SUPABASE_CONFIG={url:'https://wpuvuwtjviiczxqvunvo.supabase.co',key:'sb_publishable_eTecDUdnf_BXOw83cnUv6g_ik3hEupD'};
+function getConfig(){try{return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}')}catch(e){return {}}}
+const DEFAULT_SUPABASE_CONFIG={url:'https://wpuvuwtjviiczxqvunvo.supabase.co',key:'sb_publishable_eTecDUdnf_BXOw83cnUv6g_ik3hEupD'};
 function editConfig(){$('configFields').classList.remove('hidden');$('loginFields').classList.add('hidden');$('authMessage').textContent='';}
 function saveConfig(){
  const url=$('sbUrl').value.trim().replace(/\/$/,''),key=$('sbKey').value.trim();
@@ -261,6 +262,5 @@ window.addEventListener('load',()=>{
  if(p){currentPayload=p}
  initSupabase();
 });
-</script>
 </script>
 </body></html>
