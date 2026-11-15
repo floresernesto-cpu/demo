@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#14243a">
-<title>DEMO | Control de Producción e Inventarios</title>
+<title>DEMO | Producción, Almacén y Ventas</title>
 <style>
 :root{--navy:#14243a;--navy2:#234360;--blue:#2878d0;--cyan:#169eae;--bg:#f3f6fa;--line:#e3eaf1;--muted:#667085;--green:#16865b;--amber:#b7791f;--red:#c2413b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:#1d2939}button,input,select,textarea{font:inherit}
@@ -42,8 +42,9 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 <header><div class="brand"><div class="logo">D</div><div><b>DEMO · Control Industrial</b><small>Demostración de producción, inventarios y trazabilidad</small></div></div><div class="top-actions"><span id="connectionStatus">Sin configurar</span><span class="user-chip" id="currentUser"></span><button class="btn secondary" id="logoutBtn" onclick="logout()" style="display:none">Salir</button></div></header>
 <nav>
 <button class="active" data-page="dashboard">Dashboard CEO</button>
-<button data-page="trace">Flujo de trazabilidad</button>
-<button data-page="operations">Producción e inventario</button>
+<button data-page="production">Producción</button>
+<button data-page="warehouse">Almacén</button>
+<button data-page="sales">Ventas y órdenes</button>
 <button data-page="qr">Generar QR</button>
 <button data-page="mobile">Captura móvil</button>
 </nav>
@@ -72,34 +73,59 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 <main>
 <section id="dashboard">
  <div class="pagehead"><div><h1>Resumen ejecutivo</h1><p>Visibilidad de producción, inventario, compromisos, faltantes y desempeño.</p></div><button class="btn outline" onclick="resetDemo()">Reiniciar datos demo</button></div>
- <div class="grid kpis">
-  <div class="card"><div class="label">Piezas fabricadas</div><div class="value" id="kMade">1,280</div><div class="hint"><span class="up">+8.4%</span> vs periodo anterior</div></div>
-  <div class="card"><div class="label">Inventario en almacén</div><div class="value" id="kStock">940</div><div class="hint">Piezas recibidas físicamente</div></div>
-  <div class="card"><div class="label">Comprometido</div><div class="value" id="kCommitted">720</div><div class="hint">Pedidos y reservas vigentes</div></div>
-  <div class="card"><div class="label">Faltante por cubrir</div><div class="value" id="kShort">110</div><div class="hint"><span class="warn">2 órdenes</span> requieren atención</div></div>
-  <div class="card"><div class="label">Horas productivas</div><div class="value" id="kHours">46.5 h</div><div class="hint">De 56 h programadas</div></div>
+ <div class="grid kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+  <div class="card"><div class="label">Piezas fabricadas</div><div class="value" id="kMade">0</div></div>
+  <div class="card"><div class="label">Inventario físico</div><div class="value" id="kStock">0</div></div>
+  <div class="card"><div class="label">Comprometido pendiente</div><div class="value" id="kCommitted">0</div></div>
+  <div class="card"><div class="label">Disponible para vender</div><div class="value" id="kAvailable">0</div></div>
+  <div class="card"><div class="label">Surtido / picking</div><div class="value" id="kPicked">0</div></div>
+  <div class="card"><div class="label">En tránsito / por recibir</div><div class="value" id="kTransit">0</div></div>
  </div>
+ <div class="card" style="margin-bottom:13px"><div class="metric"><span>Horas de producción registradas</span><b id="kHours">0 h</b></div><p class="hint">Datos consolidados de producción, recepciones, compromisos y surtidos registrados en Supabase.</p></div>
  <div class="grid two">
-  <div class="card"><h3>Producción por día · piezas</h3><div class="bars" id="bars"></div><p class="hint">Volumen consolidado ilustrativo.</p></div>
-  <div class="card"><h3>Indicadores de desempeño</h3>
-   <div class="progress"><div class="ptop"><span>OEE ilustrativo (pendiente PLC)</span><b>78%</b></div><div class="track"><div class="fill green" style="width:78%"></div></div></div>
-   <div class="progress"><div class="ptop"><span>Cumplimiento ilustrativo</span><b>92%</b></div><div class="track"><div class="fill" style="width:92%"></div></div></div>
-   <div class="progress"><div class="ptop"><span>Exactitud ilustrativa</span><b>98.2%</b></div><div class="track"><div class="fill green" style="width:98.2%"></div></div></div>
-   <div class="progress"><div class="ptop"><span>Disponibilidad ilustrativa</span><b>89%</b></div><div class="track"><div class="fill amber" style="width:89%"></div></div></div>
-   <p class="hint">OEE, cumplimiento y disponibilidad son valores ilustrativos; aún no se calculan desde PLC ni órdenes.</p>
-  </div>
+  <div class="card"><h3>Inventario y compromisos por producto</h3><div style="overflow:auto"><table><thead><tr><th>Producto</th><th>Fabricado</th><th>Físico</th><th>Comprometido</th><th>Disponible</th><th>Surtido</th><th>Tránsito</th></tr></thead><tbody id="dashboardProducts"></tbody></table></div></div>
+  <div class="card"><h3>Órdenes pendientes</h3><div style="overflow:auto"><table><thead><tr><th>Orden</th><th>Producto</th><th>Solicitado</th><th>Pendiente</th><th>Surtido</th><th>Estado</th></tr></thead><tbody id="dashboardOrders"></tbody></table></div></div>
  </div>
- <div class="grid two">
-  <div class="card"><h3>Inventario y cobertura</h3>
-   <div class="metric"><span>Inventario físico</span><b id="mStock">940</b></div><div class="metric"><span>Comprometido</span><b id="mCommitted">720</b></div><div class="metric"><span>Disponible sin compromiso</span><b id="mFree">220</b></div><div class="metric"><span>En tránsito / por recibir</span><b id="mTransit">340</b></div><div class="metric"><span>Faltante para cubrir demanda</span><b class="bad" id="mShort">110</b></div>
-  </div>
-  <div class="card"><h3>Alertas para Dirección</h3>
-   <div class="metric"><span><i class="pill red">Crítica</i> OV-045 · faltante</span><b>70 pzas</b></div><div class="metric"><span><i class="pill amber">Atención</i> LT-208 · diferencia</span><b>20 pzas</b></div><div class="metric"><span><i class="pill amber">Atención</i> Inyectora 2 · paro</span><b>32 min</b></div><p class="hint">Umbrales configurables por Dirección.</p>
-  </div>
- </div>
- <div class="card"><div class="subhead"><h3>Órdenes bajo seguimiento</h3><span class="pill">Ejemplo</span></div><div style="overflow:auto"><table><thead><tr><th>Orden</th><th>Producto</th><th>Solicitado</th><th>Disponible</th><th>Estado</th></tr></thead><tbody><tr><td>OV-045</td><td>Respaldo de silla</td><td>180</td><td>110</td><td><span class="pill red">Faltante</span></td></tr><tr><td>OV-046</td><td>Asiento de silla</td><td>240</td><td>240</td><td><span class="pill green">Cubierto</span></td></tr><tr><td>OV-047</td><td>Base estrella de silla</td><td>120</td><td>120</td><td><span class="pill green">Cubierto</span></td></tr></tbody></table></div></div>
+ <div class="notice info">OEE y eficiencia de máquina se incorporarán cuando se integre la captura automática de paros y señales PLC. Esta vista muestra cantidades reales registradas en la base central.</div>
 </section>
 
+<section id="production" class="hidden">
+ <div class="pagehead"><div><h1>Producción</h1><p>Registra corridas y consulta cuánto se ha entregado a almacén. Cada lote admite entregas parciales repetidas.</p></div></div>
+ <div class="grid two">
+  <div class="card"><h3>Agregar producción</h3><div class="fields">
+   <div class="field"><label>Producto</label><select id="pProduct"></select></div>
+   <div class="field"><label>Máquina / línea</label><select id="pMachine"></select></div>
+   <div class="field"><label>Folio de lote</label><input id="pLot" value="LOT-2026-026"></div>
+   <div class="field"><label>Piezas fabricadas</label><input id="pMade" type="number" min="1" value="200"></div>
+   <div class="field"><label>Operador</label><input id="pOperator"></div>
+   <div class="field"><label>Horas de producción</label><input id="pHours" type="number" step=".25" value="8"></div>
+  </div><div class="notice">La producción se registra una sola vez. El inventario aumenta únicamente cuando almacén confirma cada recepción.</div>
+  <button class="btn primary" onclick="createProductionFromModule()">Agregar producción</button></div>
+  <div class="card"><h3>Resumen de producción</h3><div class="metric"><span>Lotes registrados</span><b id="pLotCount">0</b></div><div class="metric"><span>Piezas fabricadas</span><b id="pTotalMade">0</b></div><div class="metric"><span>Entregadas a almacén</span><b id="pTotalReceived">0</b></div><div class="metric"><span>Pendientes de entregar</span><b id="pTotalPending">0</b></div></div>
+ </div>
+ <div class="card"><h3>Registro acumulado de producción</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Máquina</th><th>Producto</th><th>Fabricado</th><th>Entregado</th><th>Pendiente</th><th>Acción</th></tr></thead><tbody id="productionRows"></tbody></table></div></div>
+</section>
+<section id="warehouse" class="hidden">
+ <div class="pagehead"><div><h1>Almacén</h1><p>Confirma recepciones parciales o completas y consulta el historial por destino.</p></div></div>
+ <div class="grid three"><div class="card"><div class="label">Inventario físico</div><div class="value" id="wStock">0</div></div><div class="card"><div class="label">Pendiente de recibir</div><div class="value" id="wPending">0</div></div><div class="card"><div class="label">Recepciones registradas</div><div class="value" id="wMovements">0</div></div></div>
+ <div class="card"><h3>Producción pendiente de recibir</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Producto</th><th>Fabricado</th><th>Recibido</th><th>Pendiente</th><th>Recibir ahora</th><th>Destino</th><th></th></tr></thead><tbody id="warehousePendingRows"></tbody></table></div></div>
+ <div class="card" style="margin-top:13px"><h3>Historial de recepciones</h3><div style="overflow:auto"><table><thead><tr><th>Fecha y hora</th><th>Lote</th><th>Producto</th><th>Entrada</th><th>Almacén destino</th></tr></thead><tbody id="warehouseHistoryRows"></tbody></table></div></div>
+</section>
+<section id="sales" class="hidden">
+ <div class="pagehead"><div><h1>Ventas y órdenes</h1><p>Ventas puede comprometer inventario en cualquier momento, sin esperar a que termine producción.</p></div></div>
+ <div class="card"><h3>Inventario disponible para ventas</h3><div style="overflow:auto"><table><thead><tr><th>Producto</th><th>Físico</th><th>Comprometido pendiente</th><th>Disponible</th><th>Surtido acumulado</th></tr></thead><tbody id="salesInventoryRows"></tbody></table></div></div>
+ <div class="grid two" style="margin-top:13px">
+  <div class="card"><h3>Crear orden / compromiso</h3><div class="fields">
+   <div class="field"><label>Número de orden</label><input id="sOrder" placeholder="OV-2026-001"></div>
+   <div class="field"><label>Cliente</label><input id="sCustomer" placeholder="Cliente"></div>
+   <div class="field full"><label>Producto</label><select id="sProduct"></select></div>
+   <div class="field"><label>Cantidad solicitada</label><input id="sQty" type="number" min="1" value="100"></div>
+   <div class="field"><label>Fecha requerida</label><input id="sDate" type="date"></div>
+  </div><div class="notice info">La cantidad queda comprometida y se valida contra el inventario físico menos los compromisos existentes.</div><button class="btn primary" onclick="createSalesCommitment()">Crear orden y comprometer inventario</button></div>
+  <div class="card"><h3>Reglas de inventario</h3><div class="metric"><span>Inventario físico</span><b>Recibido − surtido</b></div><div class="metric"><span>Comprometido</span><b>Pedido − picking</b></div><div class="metric"><span>Disponible</span><b>Físico − comprometido</b></div><div class="metric"><span>Surtido</span><b>Salida confirmada</b></div><p class="hint">El picking reduce el inventario físico y el compromiso pendiente de la orden.</p></div>
+ </div>
+ <div class="card"><h3>Órdenes y registro de picking</h3><div style="overflow:auto"><table><thead><tr><th>Orden</th><th>Cliente</th><th>Producto</th><th>Solicitado</th><th>Comprometido pendiente</th><th>Surtido</th><th>Estado</th><th>Picking</th></tr></thead><tbody id="salesOrderRows"></tbody></table></div></div>
+</section>
 <section id="trace" class="hidden">
  <div class="pagehead"><div><h1>Flujo de trazabilidad</h1><p>Registra un lote y avanza entre producción, tránsito, almacén y orden de venta.</p></div><button class="btn outline" onclick="newLot()">Nuevo lote</button></div>
  <div class="stepper" id="stepper"><div class="step active"><span class="n">1</span><div><b>Producción</b><small>Registro inicial</small></div></div><div class="step"><span class="n">2</span><div><b>En tránsito</b><small>Pendiente recepción</small></div></div><div class="step"><span class="n">3</span><div><b>Almacén</b><small>Confirmar cantidad</small></div></div><div class="step"><span class="n">4</span><div><b>Orden de venta</b><small>Surtido</small></div></div></div>
@@ -119,7 +145,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
  <div class="pagehead"><div><h1>Generador de códigos QR</h1><p>Selecciona un lote existente. El QR consulta el registro central al escanearse.</p></div></div>
  <div class="grid two"><div class="card"><h3>Configurar QR de movimiento</h3><div class="fields">
   <div class="field full"><label>Lote registrado</label><select id="qrLotSelect"></select></div>
-  <div class="field"><label>Proceso destino</label><select id="qrStage"><option value="receipt">Recepción de almacén</option><option value="dispatch">Surtido a orden de venta</option></select></div>
+  <div class="field"><label>Proceso destino</label><select id="qrStage"><option value="receipt">Recepción parcial de almacén</option></select></div>
  </div><div class="actions"><button class="btn primary" onclick="generateQR()">Generar QR para celular →</button></div><div class="notice info">El código QR contiene el identificador del lote, no una copia editable de su inventario. El celular consultará Supabase y cargará los datos actuales.</div></div>
  <div class="card"><h3>Escanea para abrir el formulario</h3><div class="qrrow"><div class="qrbox" id="qrCode"><span class="hint">Selecciona un lote y genera el QR.</span></div><div class="qrinfo"><b id="qrTitle">Esperando datos</b><p class="hint" id="qrDesc">El usuario deberá iniciar sesión para registrar el movimiento.</p><button class="btn secondary" onclick="copyQRLink()">Copiar enlace móvil</button></div></div><div id="qrLink" class="url hidden"></div><div class="notice">Publica la aplicación en GitHub Pages mediante HTTPS para escanear el código desde otro dispositivo.</div></div></div>
 </section>
@@ -129,14 +155,14 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
  <div class="mobile"><div class="mhead"><b>Registro de movimiento</b><br><small>Escaneo QR · Captura guiada</small></div><div class="mbody" id="mobileForm"><span class="pill">Sin QR cargado</span><h2>Escanea un código QR</h2><p class="hint">Genera un QR en la pestaña correspondiente y escanéalo con la cámara del celular.</p><button class="btn primary" onclick="showPage('qr')">Ir a generar QR</button></div></div>
 </section>
 </main>
-<footer>Prototipo demostrativo · Indicadores ficticios · Sin conexión ERP · GitHub Pages aloja la app, pero no sincroniza datos entre dispositivos.</footer>
+<footer>DEMO industrial · Datos centralizados en Supabase · Producción, almacén y ventas operan de forma independiente.</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
  onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';s.onload=function(){if(typeof initSupabase==='function')initSupabase()};s.onerror=function(){var m=document.getElementById('authMessage');if(m)m.textContent='No se pudo cargar la biblioteca de conexión. Verifica internet o las restricciones de red.'};document.head.appendChild(s)})()"></script>
 <script>
 const $=id=>document.getElementById(id);
-let sb=null, companyId=null, plantId=null, currentProfile=null, currentRole=null, lots=[], activeLotId=null, traceStep=0, currentPayload=null, currentQRLink='';
+let sb=null, companyId=null, plantId=null, currentProfile=null, currentRole=null, lots=[], activeLotId=null, traceStep=0, currentPayload=null, currentQRLink='', productsCatalog=[], salesLines=[], receiptMovements=[];
 const CONFIG_KEY='tdr_supabase_config_v1';
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmt(n){return Number(n||0).toLocaleString('es-MX')}
@@ -180,33 +206,118 @@ async function afterLogin(user){
  $('currentUser').textContent=currentProfile+' · '+currentRole;
  $('logoutBtn').style.display='inline-block';$('authScreen').classList.add('hidden');
  $('connectionStatus').textContent='Conectado · '+(m.companies?.name||'Empresa');
- await loadLots();renderDashboard();renderOperations();
+ await loadLots();await loadSalesData();await loadReceiptMovements();renderDashboard();renderProduction();renderWarehouse();renderSales();
  if(currentPayload){const pending=currentPayload;currentPayload=null;await openMobile(pending)}
  // Subscribe to database changes for this company.
  sb.removeAllChannels();
- sb.channel('tdr-company-'+companyId).on('postgres_changes',{event:'*',schema:'public',table:'production_lots',filter:'company_id=eq.'+companyId},async()=>{await loadLots();renderDashboard();renderOperations();if(!$('trace').classList.contains('hidden'))renderTrace()}).subscribe();
+ sb.channel('demo-company-'+companyId)
+  .on('postgres_changes',{event:'*',schema:'public',table:'production_lots',filter:'company_id=eq.'+companyId},refreshAll)
+  .on('postgres_changes',{event:'*',schema:'public',table:'inventory_movements',filter:'company_id=eq.'+companyId},refreshAll)
+  .on('postgres_changes',{event:'*',schema:'public',table:'sales_order_lines',filter:'company_id=eq.'+companyId},refreshAll)
+  .subscribe();
 }
 async function logout(){if(sb)await sb.auth.signOut();companyId=null;plantId=null;lots=[];$('authScreen').classList.remove('hidden');$('logoutBtn').style.display='none';$('currentUser').textContent='';$('connectionStatus').textContent='Desconectado'}
 function ensureRole(roles){if(!roles.includes(currentRole)){alert('Tu perfil no tiene permiso para realizar esta operación.');return false}return true}
 async function loadLots(){
  const {data,error}=await sb.from('production_lots').select('id,company_id,plant_id,product_id,machine_id,lot_code,produced_qty,received_qty,issued_qty,production_hours,operator_name,status,created_at,products(name,sku),machines(name,code)').eq('company_id',companyId).order('created_at',{ascending:false});
  if(error){console.error(error);return msg('connectionStatus','Error al consultar datos')}
- lots=(data||[]).map(l=>({...l,id:l.id,lot:l.lot_code,product:l.products?.name||'Producto',machine:l.machines?.name||'Sin máquina',made:l.produced_qty,received:l.received_qty,issued:l.issued_qty,hours:Number(l.production_hours),operator:l.operator_name,status:l.status,events:[]}));
+ lots=(data||[]).map(l=>({...l,id:l.id,product_id:l.product_id,lot:l.lot_code,product:l.products?.name||'Producto',machine:l.machines?.name||'Sin máquina',made:l.produced_qty,received:l.received_qty,issued:l.issued_qty,hours:Number(l.production_hours),operator:l.operator_name,status:l.status,created_at:l.created_at,events:[]}));
+ const {data:pc}=await sb.from('products').select('id,name,sku').eq('company_id',companyId).eq('is_active',true).order('name');
+ productsCatalog=pc||[];
 }
-function showPage(id){document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='dashboard')renderDashboard();if(id==='operations')renderOperations();if(id==='trace')renderTrace();if(id==='qr')populateQRLots()}
+function showPage(id){document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='dashboard')renderDashboard();if(id==='production')renderProduction();if(id==='warehouse')renderWarehouse();if(id==='sales')renderSales();if(id==='qr')populateQRLots()}
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
-function totals(){return {made:lots.reduce((s,l)=>s+l.made,0),stock:lots.reduce((s,l)=>s+l.received-l.issued,0),transit:lots.reduce((s,l)=>s+l.made-l.received,0),hours:lots.reduce((s,l)=>s+l.hours,0)}}
-async function renderDashboard(){
- if(!sb||!companyId)return;
- const t=totals();const committed=0;const short=0;
- $('kMade').textContent=fmt(t.made);$('kStock').textContent=fmt(t.stock);$('kCommitted').textContent=fmt(committed);$('kShort').textContent=fmt(short);$('kHours').textContent=t.hours.toFixed(1)+' h';
- $('mStock').textContent=fmt(t.stock);$('mCommitted').textContent=fmt(committed);$('mFree').textContent=fmt(Math.max(0,t.stock-committed));$('mTransit').textContent=fmt(t.transit);$('mShort').textContent=fmt(short);
- $('ordersRows')?.remove();
+function productBalances(){
+ const map={};
+ productsCatalog.forEach(p=>map[p.id]={id:p.id,name:p.name,sku:p.sku,made:0,stock:0,committed:0,available:0,picked:0,transit:0});
+ lots.forEach(l=>{const x=map[l.product_id];if(x){x.made+=l.made;x.stock+=l.received-l.issued;x.transit+=l.made-l.received;x.picked+=l.issued}});
+ salesLines.forEach(o=>{const x=map[o.product_id];if(x)x.committed+=Math.max(0,o.requested_qty-o.picked_qty-o.cancelled_qty)});
+ Object.values(map).forEach(x=>x.available=Math.max(0,x.stock-x.committed));
+ return Object.values(map);
 }
-$('bars').innerHTML=[['Lun',180],['Mar',210],['Mié',195],['Jue',230],['Vie',260],['Sáb',205]].map(x=>`<div class="barcol"><b>${x[1]}</b><div class="bar" style="height:${x[1]/260*100}%"></div><small>${x[0]}</small></div>`).join('');
-function renderOperations(){
- $('lotCount').textContent=lots.length;$('pendingCount').textContent=lots.filter(l=>l.made>l.received).length;$('diffCount').textContent=lots.filter(l=>l.received>0&&l.received<l.made).length;
- $('lotsTable').innerHTML=lots.map(l=>`<tr><td><b>${esc(l.lot)}</b></td><td>${esc(l.product)}</td><td>${fmt(l.made)}</td><td>${fmt(l.received)}</td><td>${fmt(l.issued)}</td><td>${fmt(l.received-l.issued)}</td><td><span class="pill">${esc(l.status)}</span></td><td><button class="btn secondary" onclick="loadLotToTrace('${l.id}')">Abrir</button></td></tr>`).join('');
+function totals(){const a=productBalances();return {made:a.reduce((s,x)=>s+x.made,0),stock:a.reduce((s,x)=>s+x.stock,0),committed:a.reduce((s,x)=>s+x.committed,0),available:a.reduce((s,x)=>s+x.available,0),picked:a.reduce((s,x)=>s+x.picked,0),transit:a.reduce((s,x)=>s+x.transit,0),hours:lots.reduce((s,l)=>s+l.hours,0)}}
+async function loadSalesData(){
+ const {data,error}=await sb.from('sales_order_lines').select('id,company_id,order_id,product_id,requested_qty,picked_qty,cancelled_qty,status,created_at,products(name,sku),sales_orders(order_number,customer_name,required_date,status)').eq('company_id',companyId).order('created_at',{ascending:false});
+ if(error){console.error(error);salesLines=[];return} salesLines=data||[];
+}
+async function loadReceiptMovements(){
+ const {data,error}=await sb.from('inventory_movements').select('id,lot_id,quantity,location,created_at,production_lots(lot_code,products(name))').eq('company_id',companyId).eq('movement_type','receipt').order('created_at',{ascending:false}).limit(250);
+ if(error){console.error(error);receiptMovements=[];return} receiptMovements=data||[];
+}
+async function refreshAll(){
+ await loadLots();await loadSalesData();await loadReceiptMovements();
+ renderDashboard();renderProduction();renderWarehouse();renderSales();
+ if(!$('trace').classList.contains('hidden'))renderTrace();
+}
+async function renderDashboard(){
+ if(!sb||!companyId)return;const t=totals();
+ $('kMade').textContent=fmt(t.made);$('kStock').textContent=fmt(t.stock);$('kCommitted').textContent=fmt(t.committed);
+ $('kAvailable').textContent=fmt(t.available);$('kPicked').textContent=fmt(t.picked);$('kTransit').textContent=fmt(t.transit);$('kHours').textContent=t.hours.toFixed(1)+' h';
+ const b=productBalances();
+ $('dashboardProducts').innerHTML=b.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${fmt(x.made)}</td><td>${fmt(x.stock)}</td><td>${fmt(x.committed)}</td><td><b>${fmt(x.available)}</b></td><td>${fmt(x.picked)}</td><td>${fmt(x.transit)}</td></tr>`).join('')||'<tr><td colspan="7">Sin producción.</td></tr>';
+ $('dashboardOrders').innerHTML=salesLines.filter(x=>x.requested_qty>x.picked_qty+x.cancelled_qty).slice(0,15).map(x=>`<tr><td>${esc(x.sales_orders?.order_number||'')}</td><td>${esc(x.products?.name||'')}</td><td>${fmt(x.requested_qty)}</td><td>${fmt(x.requested_qty-x.picked_qty-x.cancelled_qty)}</td><td>${fmt(x.picked_qty)}</td><td><span class="pill">${esc(x.status)}</span></td></tr>`).join('')||'<tr><td colspan="6">No hay órdenes pendientes.</td></tr>';
+}
+async function renderProduction(){
+ if(!companyId)return;
+ const [{data:products},{data:machines}]=await Promise.all([
+  sb.from('products').select('id,name,sku').eq('company_id',companyId).eq('is_active',true).order('name'),
+  sb.from('machines').select('id,name,code,manufacturer').eq('company_id',companyId).eq('is_active',true).order('name')
+ ]);
+ $('pProduct').innerHTML=(products||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+ $('pMachine').innerHTML='<option value="">Sin máquina</option>'+(machines||[]).map(x=>`<option value="${x.id}">${esc(x.name)}${x.manufacturer?' · '+esc(x.manufacturer):''}</option>`).join('');
+ $('pOperator').value=currentProfile||'';
+ $('pLotCount').textContent=lots.length;$('pTotalMade').textContent=fmt(lots.reduce((s,x)=>s+x.made,0));
+ $('pTotalReceived').textContent=fmt(lots.reduce((s,x)=>s+x.received,0));$('pTotalPending').textContent=fmt(lots.reduce((s,x)=>s+x.made-x.received,0));
+ $('productionRows').innerHTML=lots.map(x=>`<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.machine)}</td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td>${fmt(x.received)}</td><td><b class="${x.made>x.received?'warn':'up'}">${fmt(x.made-x.received)}</b></td><td><button class="btn secondary" onclick="generateLotReceiptQR('${x.id}')">QR / Entrega</button></td></tr>`).join('')||'<tr><td colspan="8">Aún no hay producción.</td></tr>';
+}
+async function renderWarehouse(){
+ if(!companyId)return;const t=totals();
+ $('wStock').textContent=fmt(t.stock);$('wPending').textContent=fmt(t.transit);$('wMovements').textContent=receiptMovements.length;
+ $('warehousePendingRows').innerHTML=lots.filter(x=>x.made>x.received).map(x=>`<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td>${fmt(x.received)}</td><td><b class="warn">${fmt(x.made-x.received)}</b></td><td style="min-width:90px"><input id="whqty-${x.id}" type="number" min="1" max="${x.made-x.received}" value="${x.made-x.received}"></td><td><select id="whloc-${x.id}"><option>Almacén de producto terminado</option><option>Almacén norte</option><option>Embarques</option></select></td><td><button class="btn primary" onclick="receiveLot('${x.id}')">Confirmar</button></td></tr>`).join('')||'<tr><td colspan="9">No hay piezas pendientes de recibir.</td></tr>';
+ $('warehouseHistoryRows').innerHTML=receiptMovements.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString('es-MX')}</td><td>${esc(x.production_lots?.lot_code||'')}</td><td>${esc(x.production_lots?.products?.name||'')}</td><td><b>${fmt(x.quantity)}</b></td><td>${esc(x.location||'Sin destino')}</td></tr>`).join('')||'<tr><td colspan="5">Aún no hay recepciones.</td></tr>';
+}
+async function renderSales(){
+ if(!companyId)return;const b=productBalances();
+ $('salesInventoryRows').innerHTML=b.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${fmt(x.stock)}</td><td>${fmt(x.committed)}</td><td><b>${fmt(x.available)}</b></td><td>${fmt(x.picked)}</td></tr>`).join('')||'<tr><td colspan="5">Sin productos.</td></tr>';
+ $('sProduct').innerHTML=productsCatalog.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+ $('salesOrderRows').innerHTML=salesLines.map(x=>{
+  const remain=x.requested_qty-x.picked_qty-x.cancelled_qty, candidates=lots.filter(l=>l.product_id===x.product_id&&l.received>l.issued);
+  const picking=remain>0&&candidates.length?`<div style="min-width:230px;display:grid;gap:5px"><select id="picklot-${x.id}">${candidates.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${fmt(l.received-l.issued)} pzas</option>`).join('')}</select><input id="pickqty-${x.id}" type="number" min="1" max="${remain}" value="${Math.min(remain,candidates[0].received-candidates[0].issued)}"><button class="btn primary" onclick="pickSalesLine('${x.id}')">Registrar picking</button></div>`:'—';
+  return `<tr><td><b>${esc(x.sales_orders?.order_number||'')}</b></td><td>${esc(x.sales_orders?.customer_name||'')}</td><td>${esc(x.products?.name||'')}</td><td>${fmt(x.requested_qty)}</td><td>${fmt(remain)}</td><td>${fmt(x.picked_qty)}</td><td><span class="pill">${esc(x.status)}</span></td><td>${picking}</td></tr>`;
+ }).join('')||'<tr><td colspan="8">Todavía no hay órdenes.</td></tr>';
+}
+async function createProductionFromModule(){
+ if(!ensureRole(['admin','production']))return;
+ const qty=Number($('pMade').value),code=$('pLot').value.trim(),productId=$('pProduct').value,machineId=$('pMachine').value||null;
+ if(!code||!Number.isInteger(qty)||qty<1||!productId)return alert('Completa folio, producto y cantidad.');
+ const {data,error}=await sb.rpc('create_production_lot',{p_company_id:companyId,p_plant_id:plantId,p_product_id:productId,p_machine_id:machineId,p_lot_code:code,p_quantity:qty,p_hours:Number($('pHours').value||0),p_operator:$('pOperator').value});
+ if(error)return alert(error.message);
+ $('pLot').value='LOT-'+new Date().getFullYear()+'-'+String(Date.now()).slice(-5);
+ await refreshAll();alert('Producción registrada. El lote aparece en el historial y puede recibirse en varias entregas.');
+}
+async function receiveLot(id){
+ if(!ensureRole(['admin','warehouse']))return;const x=lots.find(l=>l.id===id),qty=Number($('whqty-'+id).value),location=$('whloc-'+id).value;
+ if(!Number.isInteger(qty)||qty<1||qty>x.made-x.received)return alert('La cantidad supera lo pendiente de recibir.');
+ const {error}=await sb.rpc('register_lot_movement',{p_lot_id:id,p_movement_type:'receipt',p_quantity:qty,p_location:location,p_order_number:null,p_notes:null});
+ if(error)return alert(error.message);await refreshAll();alert('Recepción guardada. Puedes registrar otra entrega parcial del mismo lote.');
+}
+async function createSalesCommitment(){
+ if(!ensureRole(['admin','sales']))return;
+ const order=$('sOrder').value.trim(),customer=$('sCustomer').value.trim(),product=$('sProduct').value,qty=Number($('sQty').value),date=$('sDate').value||null;
+ if(!order||!product||!Number.isInteger(qty)||qty<1)return alert('Completa orden, producto y cantidad.');
+ const {data,error}=await sb.rpc('create_sales_commitment',{p_company_id:companyId,p_plant_id:plantId,p_order_number:order,p_customer_name:customer,p_product_id:product,p_quantity:qty,p_required_date:date});
+ if(error)return alert(error.message);$('sOrder').value='';$('sCustomer').value='';await refreshAll();alert('Orden creada y cantidad comprometida correctamente.');
+}
+async function pickSalesLine(id){
+ if(!ensureRole(['admin','warehouse']))return;const lotId=$('picklot-'+id)?.value,qty=Number($('pickqty-'+id)?.value);
+ if(!lotId)return alert('No hay un lote recibido disponible para surtir.');
+ if(!Number.isInteger(qty)||qty<1)return alert('Captura una cantidad válida.');
+ const {error}=await sb.rpc('pick_sales_order_line',{p_order_line_id:id,p_lot_id:lotId,p_quantity:qty,p_location:'Embarques',p_notes:'Picking registrado desde DEMO'});
+ if(error)return alert(error.message);await refreshAll();alert('Picking registrado. Se actualizó el inventario y el compromiso de la orden.');
+}
+function generateLotReceiptQR(id){
+ const l=lots.find(x=>x.id===id);if(!l)return;if(l.made<=l.received)return alert('El lote ya fue recibido completamente.');
+ const p=makePayload('receipt',l);drawQR($('qrCode'),p);$('qrTitle').textContent=l.lot+' · Recepción parcial de almacén';$('qrDesc').textContent=`${l.product}: ${fmt(l.made-l.received)} piezas pendientes.`;$('qrLink').textContent=currentQRLink;$('qrLink').classList.remove('hidden');showPage('qr');
 }
 function newLot(){activeLotId=null;traceStep=0;showPage('trace')}
 function loadLotToTrace(id){let l=lots.find(x=>x.id===id);if(!l)return;activeLotId=id;traceStep=l.issued>0?3:l.received>0?2:1;showPage('trace')}
@@ -234,19 +345,19 @@ async function createTraceLot(){
 function advanceToReceipt(){traceStep=2;renderTrace()}
 async function confirmTraceReceipt(){if(!ensureRole(['admin','warehouse']))return;let l=activeLot(),qty=Number($('tReceived').value);if(!Number.isInteger(qty)||qty<1)return alert('Captura una cantidad recibida válida.');const {error}=await sb.rpc('register_lot_movement',{p_lot_id:l.id,p_movement_type:'receipt',p_quantity:qty,p_location:$('tLocation').value,p_order_number:null,p_notes:$('tNotes').value});if(error)return alert(error.message);await loadLots();traceStep=3;renderTrace();renderDashboard();renderOperations()}
 async function confirmDispatch(){if(!ensureRole(['admin','warehouse','sales']))return;let l=activeLot(),qty=Number($('tIssue').value);if(!Number.isInteger(qty)||qty<1)return alert('Captura una cantidad válida.');const {error}=await sb.rpc('register_lot_movement',{p_lot_id:l.id,p_movement_type:'dispatch',p_quantity:qty,p_location:'Embarques',p_order_number:$('tOrder').value,p_notes:null});if(error)return alert(error.message);await loadLots();traceStep=3;renderTrace();renderDashboard();renderOperations()}
-function makePayload(stage,l){return {stage,lot_id:l.id,lot:l.lot,company_id:companyId,product:l.product,machine:l.machine,qty:stage==='receipt'?l.made:stage==='dispatch'?l.received-l.issued:l.made,order:'',made:l.made,received:l.received,issued:l.issued}}
+function makePayload(stage,l){return {stage,lot_id:l.id,lot:l.lot,company_id:companyId,product:l.product,machine:l.machine,qty:stage==='receipt'?l.made-l.received:stage==='dispatch'?l.received-l.issued:l.made,order:'',made:l.made,received:l.received,issued:l.issued}}
 function makeStageQR(stage){let l=activeLot();if(!l)return;drawQR($('traceQR'),makePayload(stage,l));$('traceQRTitle').textContent=l.lot+' · '+stageName(stage);$('traceQRText').textContent='Escanea para abrir el formulario móvil precargado.'}
 function traceMakeQR(){let l=activeLot();if(!l)return alert('Primero registra o abre un lote.');makeStageQR(l.received===0?'receipt':'dispatch')}
 function stageName(s){return s==='production'?'Producción':s==='receipt'?'Recepción de almacén':'Surtido a orden de venta'}
 function baseURL(){return location.href.split('#')[0]}function encode(p){return btoa(unescape(encodeURIComponent(JSON.stringify(p))))}function buildURL(p){return baseURL()+'#capture='+encodeURIComponent(encode(p))}
 function drawQR(box,p){currentQRLink=buildURL(p);box.innerHTML='';if(window.QRCode)new QRCode(box,{text:currentQRLink,width:175,height:175,colorDark:'#14243a',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});else box.textContent='No se pudo cargar QR.'}
 function populateQRLots(){const sel=$('qrLotSelect');if(!sel)return;sel.innerHTML=lots.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${esc(l.product)} · ${l.made} pzas</option>`).join('');}
-function generateQR(){const l=lots.find(x=>x.id===$('qrLotSelect').value);if(!l)return alert('Primero registra un lote de producción.');const stage=$('qrStage').value;if(stage==='receipt'&&l.received>=l.made)return alert('Este lote ya recibió todas las piezas registradas.');if(stage==='dispatch'&&l.received<=l.issued)return alert('Este lote no tiene inventario disponible para surtir.');const p=makePayload(stage,l);drawQR($('qrCode'),p);$('qrTitle').textContent=l.lot+' · '+stageName(stage);$('qrDesc').textContent=`Producto: ${l.product}. Cantidad de referencia: ${p.qty}. El celular consultará el lote central.`;$('qrLink').textContent=currentQRLink;$('qrLink').classList.remove('hidden')}
+function generateQR(){const l=lots.find(x=>x.id===$('qrLotSelect').value);if(!l)return alert('Primero registra un lote de producción.');const stage='receipt';if(l.received>=l.made)return alert('Este lote ya recibió todas las piezas registradas.');const p=makePayload(stage,l);drawQR($('qrCode'),p);$('qrTitle').textContent=l.lot+' · '+stageName(stage);$('qrDesc').textContent=`Producto: ${l.product}. Cantidad de referencia: ${p.qty}. El celular consultará el lote central.`;$('qrLink').textContent=currentQRLink;$('qrLink').classList.remove('hidden')}
 function copyQRLink(){if(!currentQRLink)return alert('Primero genera un QR.');navigator.clipboard?.writeText(currentQRLink).then(()=>alert('Enlace copiado.')).catch(()=>prompt('Copia el enlace:',currentQRLink))}
 function decodeHash(){try{let m=location.hash.match(/capture=([^&]+)/);return m?JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1]))))):null}catch(e){return null}}
 async function openMobile(p){
  currentPayload=p;showPage('mobile');
- if(p.lot_id){const {data,error}=await sb.from('production_lots').select('id,lot_code,produced_qty,received_qty,issued_qty,company_id,products(name),machines(name)').eq('id',p.lot_id).single();if(error)return $('mobileForm').innerHTML='<div class="notice">'+esc(error.message)+'</div>';p={...p,lot:data.lot_code,qty:p.stage==='receipt'?data.produced_qty:p.stage==='dispatch'?data.received_qty-data.issued_qty:data.produced_qty,product:data.products?.name||p.product,machine:data.machines?.name||p.machine,company_id:data.company_id};currentPayload=p}
+ if(p.lot_id){const {data,error}=await sb.from('production_lots').select('id,lot_code,produced_qty,received_qty,issued_qty,company_id,products(name),machines(name)').eq('id',p.lot_id).single();if(error)return $('mobileForm').innerHTML='<div class="notice">'+esc(error.message)+'</div>';p={...p,lot:data.lot_code,qty:p.stage==='receipt'?Math.max(0,data.produced_qty-data.received_qty):p.stage==='dispatch'?data.received_qty-data.issued_qty:data.produced_qty,product:data.products?.name||p.product,machine:data.machines?.name||p.machine,company_id:data.company_id};currentPayload=p}
  let fields=p.stage==='receipt'?`<div class="field"><label>Piezas recibidas físicamente</label><input id="mobQty" type="number" min="1" value="${p.qty}"></div><div class="field"><label>Ubicación de almacén</label><select id="mobLocation"><option>Almacén de producto terminado</option><option>Almacén norte</option><option>Embarques</option></select></div><div class="field full"><label>Observaciones / diferencia</label><textarea id="mobNotes"></textarea></div>`:p.stage==='production'?`<div class="field"><label>Piezas fabricadas</label><input id="mobQty" type="number" min="1" value="${p.qty}"></div><div class="field"><label>Horas de producción</label><input id="mobHours" type="number" step=".25" value="8"></div>`:`<div class="field"><label>Cantidad a surtir</label><input id="mobQty" type="number" min="1" value="${Math.min(p.qty,50)}"></div><div class="field"><label>Orden de venta</label><input id="mobOrder" value="${esc(p.order||'')}"></div>`;
  $('mobileForm').innerHTML=`<span class="pill green">QR reconocido · ${stageName(p.stage)}</span><h2>${stageName(p.stage)}</h2><p class="hint">Los datos del lote se consultaron desde la base central. Verifica y completa los campos.</p><div class="card" style="padding:11px;background:#f7f9fc;box-shadow:none"><div class="metric"><span>Folio</span><b>${esc(p.lot)}</b></div><div class="metric"><span>Producto</span><b>${esc(p.product)}</b></div><div class="metric"><span>Máquina</span><b>${esc(p.machine)}</b></div><div class="metric"><span>Cantidad referencia</span><b>${fmt(p.qty)} piezas</b></div></div><div class="fields" style="margin-top:14px">${fields}</div><div class="notice info">Debes iniciar sesión. El movimiento se registrará con tu usuario y se validará en la base central.</div><button class="btn primary" style="width:100%;padding:13px" onclick="submitMobile()">Confirmar y registrar movimiento</button><p class="hint" id="mobileResult"></p>`;
 }
@@ -257,7 +368,7 @@ async function submitMobile(){
  const {error}=await sb.rpc('register_lot_movement',{p_lot_id:p.lot_id,p_movement_type:p.stage,p_quantity:qty,p_location:$('mobLocation')?.value||null,p_order_number:$('mobOrder')?.value||null,p_notes:$('mobNotes')?.value||null});
  if(error)return alert(error.message);
  $('mobileResult').innerHTML='<span class="up">✓ Movimiento guardado en la base central.</span><br>El dashboard y los demás usuarios autorizados podrán consultar el cambio.';
- await loadLots();renderDashboard();renderOperations();
+ await loadLots();await loadSalesData();await loadReceiptMovements();renderDashboard();renderProduction();renderWarehouse();renderSales();
 }
 async function resetDemo(){alert('Los datos reales no se borran desde esta pantalla. Para limpiar datos de prueba utiliza el SQL Editor con un procedimiento administrativo controlado.')}
 window.addEventListener('load',()=>{
