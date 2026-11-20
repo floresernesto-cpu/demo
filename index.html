@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#14243a">
-<title>DEMO V6 | Flujo por etapas y Dashboard</title>
+<title>DEMO Control de Inyección | Producción y Trazabilidad</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%2314243a'/%3E%3Cpath d='M10 16h18v10H10zm26 0h18v10H36zM10 38h18v10H10zm26 0h18v10H36z' fill='%232878d0'/%3E%3Cpath d='M28 21h8v22h-8zM18 26v12m28-12v12M28 32h8' stroke='%23ffffff' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='4' fill='%2316865b'/%3E%3C/svg%3E">
 <style>
 :root{--navy:#14243a;--navy2:#234360;--blue:#2878d0;--cyan:#169eae;--bg:#f3f6fa;--line:#e3eaf1;--muted:#667085;--green:#16865b;--amber:#b7791f;--red:#c2413b}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:#1d2939}button,input,select,textarea{font:inherit}
@@ -41,7 +42,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 </style>
 </head>
 <body>
-<header><div class="brand"><div class="logo">D</div><div><b>DEMO · Control Industrial</b><small>Demostración de producción, inventarios y trazabilidad</small></div></div><div class="top-actions"><span id="connectionStatus">Sin configurar</span><span class="user-chip" id="currentUser"></span><button class="btn secondary" id="logoutBtn" onclick="logout()" style="display:none">Salir</button></div></header>
+<header><div class="brand"><div class="logo"><svg viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M8 12h20v12H8zm28 0h20v12H36zM8 40h20v12H8zm28 0h20v12H36z" fill="#fff" opacity=".9"/><path d="M28 18h8v28h-8zM18 24v16m28-16v16M28 32h8" stroke="#14243a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="32" cy="32" r="4" fill="#20a477"/></svg></div><div><b>DEMO · Control Industrial</b><small>Demostración de producción, inventarios y trazabilidad</small></div></div><div class="top-actions"><span id="connectionStatus">Sin configurar</span><span class="user-chip" id="currentUser"></span><button class="btn secondary" id="logoutBtn" onclick="logout()" style="display:none">Salir</button></div></header>
 <nav>
 <button class="active" data-page="production">Producción</button>
 <button data-page="quality">Calidad</button>
@@ -49,15 +50,15 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 <button data-page="sales">Ventas y órdenes</button>
 <button data-page="downtime">Paros de máquina</button>
 <button data-page="qr">Generar QR</button>
-<button data-page="mobile">Captura móvil</button>
+
 <button data-page="dashboard">Dashboard CEO</button>
 </nav>
 
 <div id="authScreen" class="authscreen">
  <div class="authcard">
-  <div class="logo" style="color:white;margin-bottom:14px">D</div>
+  <div class="logo" style="color:white;margin-bottom:14px"><svg viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M8 12h20v12H8zm28 0h20v12H36zM8 40h20v12H8zm28 0h20v12H36z" fill="#fff" opacity=".9"/><path d="M28 18h8v28h-8zM18 24v16m28-16v16M28 32h8" stroke="#14243a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="32" cy="32" r="4" fill="#20a477"/></svg></div>
   <h1>Acceso DEMO</h1>
-  <p>Conexión Supabase configurada. Inicia sesión con el usuario administrador que creaste.</p>
+  <p>Acceso a la demostración. Inicia sesión con una cuenta creada en Supabase Authentication y asignada a una empresa activa.</p>
   <div id="configFields">
    <div class="field"><label>Supabase Project URL</label><input id="sbUrl" placeholder="https://xxxxxxxx.supabase.co"></div>
    <div class="field"><label>Supabase Publishable / anon key</label><input id="sbKey" placeholder="sb_publishable_... o anon key" autocomplete="off"></div>
@@ -77,15 +78,6 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 <main>
 <section id="dashboard" class="hidden">
  <div class="pagehead"><div><h1>Resumen ejecutivo</h1><p>Visibilidad de producción, inventario, compromisos, faltantes y desempeño.</p></div><button class="btn outline" onclick="resetDemo()">Reiniciar datos demo</button></div>
- <div class="grid kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-  <div class="card"><div class="label">Piezas fabricadas</div><div class="value" id="kMade">0</div></div>
-  <div class="card"><div class="label">Inventario físico</div><div class="value" id="kStock">0</div></div>
-  <div class="card"><div class="label">Comprometido pendiente</div><div class="value" id="kCommitted">0</div></div>
-  <div class="card"><div class="label">Disponible para vender</div><div class="value" id="kAvailable">0</div></div>
-  <div class="card"><div class="label">Surtido / picking</div><div class="value" id="kPicked">0</div></div>
-  <div class="card"><div class="label">En tránsito / por recibir</div><div class="value" id="kTransit">0</div></div>
- </div>
- <div class="card" style="margin-bottom:13px"><div class="metric"><span>Horas de producción registradas</span><b id="kHours">0 h</b></div><p class="hint">Datos consolidados de producción, recepciones, compromisos y surtidos registrados en Supabase.</p></div>
  <div class="grid two" style="margin-bottom:13px">
   <div class="card"><h3>Producción por máquina y producto</h3><div id="machineProductionChart"></div></div>
   <div class="card"><h3>Desempeño de máquinas</h3><div class="grid three" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><div class="warehouse-card"><div class="label">Más horas trabajadas</div><div class="value" style="font-size:17px" id="machineMostHours">—</div><div class="hint" id="machineMostHoursValue">0 h</div></div><div class="warehouse-card"><div class="label">Más paros registrados</div><div class="value" style="font-size:17px" id="machineMostStops">—</div><div class="hint" id="machineMostStopsValue">0 eventos</div></div></div><div class="metric"><span>Mayor tiempo detenido</span><b id="machineMostDowntime">—</b></div><div class="hint" id="downtimeDataHint">Los paros se contabilizan cuando se registran en la bitácora.</div></div>
@@ -118,7 +110,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 </section>
 
 <section id="production">
- <div class="pagehead"><div><h1>Producción</h1><p>Registra corridas y consulta cuánto se ha entregado a almacén. Cada lote admite entregas parciales repetidas.</p></div></div>
+ <div class="pagehead"><div><h1>Producción</h1><p>Registra las altas de producción. Cada lote pasa primero a Calidad; aquí solo se genera el QR de inspección.</p></div></div>
  <div class="grid two">
   <div class="card"><h3>Agregar producción</h3><div class="fields">
    <div class="field"><label>Producto</label><select id="pProduct"></select></div>
@@ -131,7 +123,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
   <button class="btn primary" onclick="createProductionFromModule()">Agregar producción</button></div>
   <div class="card"><h3>Resumen de producción</h3><div class="metric"><span>Lotes registrados</span><b id="pLotCount">0</b></div><div class="metric"><span>Piezas fabricadas</span><b id="pTotalMade">0</b></div><div class="metric"><span>Liberadas por calidad</span><b id="pTotalQC">0</b></div><div class="metric"><span>Entregadas a almacén</span><b id="pTotalReceived">0</b></div><div class="metric"><span>Pendientes de inspección</span><b id="pTotalPending">0</b></div></div>
  </div>
- <div class="card"><h3>Registro acumulado de producción</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Máquina</th><th>Producto</th><th>Fabricado</th><th>Buenas liberadas</th><th>Rechazadas</th><th>Retenidas</th><th>Entregado</th><th>Pendiente QC</th><th>Estatus</th><th>Siguiente etapa</th></tr></thead><tbody id="productionRows"></tbody></table></div></div>
+ <div class="card"><h3>Registro acumulado de producción</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Máquina</th><th>Producto</th><th>Fabricado</th><th>Buenas liberadas</th><th>Rechazadas</th><th>Retenidas</th><th>Entregado</th><th>Pendiente QC</th><th>Estatus</th><th>Calidad</th></tr></thead><tbody id="productionRows"></tbody></table></div></div>
 </section>
 <section id="quality" class="hidden">
  <div class="pagehead"><div><h1>Control de calidad</h1><p>Inspección por lote. Solo las piezas conformes se liberan para recepción en almacén.</p></div></div>
@@ -218,6 +210,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 
 <section id="qr" class="hidden">
  <div class="pagehead"><div><h1>Generador de códigos QR</h1><p>Selecciona un lote existente. El QR consulta el registro central al escanearse.</p></div></div>
+ <div class="card" style="margin-bottom:13px"><h3>Seguimiento de lotes · siguiente etapa pendiente</h3><p class="hint">Este listado concentra los lotes de todas las etapas. El botón genera únicamente el QR de la siguiente etapa pendiente.</p><div style="overflow:auto"><table><thead><tr><th>Lote</th><th>Producto</th><th>Fabricado</th><th>Buenas</th><th>Rechazadas</th><th>Retenidas</th><th>Recibido</th><th>Surtido</th><th>Estatus</th><th>Acción</th></tr></thead><tbody id="qrStageRows"></tbody></table></div></div>
  <div class="grid two"><div class="card"><h3>Configurar QR de movimiento</h3><div class="fields">
   <div class="field full"><label>Lote registrado</label><select id="qrLotSelect"></select></div>
   <div class="field full"><label>Etapa destino</label><div class="notice info">La aplicación determina automáticamente la siguiente etapa pendiente. No permite saltar procesos.</div></div>
@@ -348,8 +341,7 @@ async function refreshAll(){
 }
 async function renderDashboard(){
  if(!sb||!companyId)return;const t=totals();
- $('kMade').textContent=fmt(t.made);$('kStock').textContent=fmt(t.stock);$('kCommitted').textContent=fmt(t.committed);
- $('kAvailable').textContent=fmt(t.available);$('kPicked').textContent=fmt(t.picked);$('kTransit').textContent=fmt(t.transit);$('kHours').textContent=t.hours.toFixed(1)+' h';
+ // Se omiten totales agregados de piezas de distintos productos: no son comparables ni aportan contexto.
  const b=productBalances();
  $('dashboardProducts').innerHTML=b.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${fmt(x.made)}</td><td>${fmt(x.stock)}</td><td>${fmt(x.committed)}</td><td><b>${fmt(x.available)}</b></td><td>${fmt(x.picked)}</td><td>${fmt(x.transit)}</td></tr>`).join('')||'<tr><td colspan="7">Sin producción.</td></tr>';
  $('dashboardOrders').innerHTML=salesLines.filter(x=>x.requested_qty>x.picked_qty+x.cancelled_qty).slice(0,15).map(x=>`<tr><td>${esc(x.sales_orders?.order_number||'')}</td><td>${esc(x.products?.name||'')}</td><td>${fmt(x.requested_qty)}</td><td>${fmt(x.requested_qty-x.picked_qty-x.cancelled_qty)}</td><td>${fmt(x.picked_qty)}</td><td><span class="pill">${esc(x.status)}</span></td></tr>`).join('')||'<tr><td colspan="6">No hay órdenes pendientes.</td></tr>';
@@ -363,8 +355,8 @@ function renderVisualDashboards(){
  $('machineBarChart').innerHTML=ms.length?ms.map(x=>`<div class="chart-row"><span>${esc(x.name)}</span><div class="chart-track"><div class="chart-fill" style="width:${x.units/max*100}%"></div></div><b>${fmt(x.units)} <small class="hint">pzas</small></b></div>`).join(''):'<span class="hint">Sin máquinas activas.</span>';
  const ds=machineCatalog.map(m=>({name:m.name,mins:downtimeEvents.filter(e=>e.machine_id===m.id).reduce((n,e)=>n+Number(e.duration_minutes||0),0)})).sort((a,b)=>b.mins-a.mins),dmax=Math.max(1,...ds.map(x=>x.mins));
  $('downtimeBarChart').innerHTML=ds.length?ds.map(x=>`<div class="chart-row"><span>${esc(x.name)}</span><div class="chart-track"><div class="chart-fill" style="width:${x.mins/dmax*100}%;background:#c2413b"></div></div><b>${fmt(x.mins)} <small class="hint">min</small></b></div>`).join(''):'<span class="hint">Sin máquinas activas.</span>';
- const inv=productBalances().filter(x=>x.stock||x.made).sort((a,b)=>b.stock-a.stock),imax=Math.max(100,...inv.map(x=>x.stock));
- $('reorderBarChart').innerHTML=inv.length?inv.map(x=>`<div class="chart-row"><span>${esc(x.name)}</span><div class="chart-track reorder"><div class="chart-fill" style="width:${Math.min(100,x.stock/imax*100)}%;background:${x.stock<100?'#c2413b':x.stock<=120?'#b7791f':'#16865b'}"></div></div><b>${fmt(x.stock)}</b></div>`).join(''):'<span class="hint">Sin existencias registradas.</span>';
+ const inv=productBalances().filter(x=>x.stock||x.made).sort((a,b)=>b.stock-a.stock),imax=Math.max(100,...inv.map(x=>x.stock)),reorderLeft=Math.min(100,100/imax*100);
+ $('reorderBarChart').innerHTML=inv.length?inv.map(x=>{const fill=x.stock<100?'#c2413b':x.stock<=120?'#b7791f':'#16865b';return `<div class="chart-row"><span>${esc(x.name)}</span><div class="chart-track" style="position:relative;overflow:visible"><div class="chart-fill" style="width:${Math.min(100,x.stock/imax*100)}%;background:${fill}"></div><span style="position:absolute;left:${reorderLeft}%;top:-5px;height:24px;border-left:2px dashed #c2413b;z-index:3"></span></div><b>${fmt(x.stock)}</b></div>`}).join(''):'<span class="hint">Sin existencias registradas.</span>';
 }
 function renderDowntimeHistory(){const body=$('downtimeRows');if(!body)return;body.innerHTML=downtimeEvents.map(e=>`<tr><td>${new Date(e.occurred_at).toLocaleString('es-MX')}</td><td>${esc(e.machines?.name||machineCatalog.find(m=>m.id===e.machine_id)?.name||'')}</td><td class="bad">${fmt(e.duration_minutes)} min</td><td>${esc(e.reason||'')}</td><td>${esc(e.notes||'')}</td></tr>`).join('')||'<tr><td colspan="5">Sin paros registrados.</td></tr>'}
 function stockStatus(q){return q<100?{cls:'stock-low',label:'Por debajo del mínimo'}:q<=120?{cls:'stock-warn',label:'En punto de reorden'}:{cls:'stock-good',label:'Nivel saludable'}}
@@ -472,7 +464,7 @@ async function renderProduction(){
  $('pOperator').value=currentProfile||'';
  $('pLotCount').textContent=lots.length;$('pTotalMade').textContent=fmt(lots.reduce((s,x)=>s+x.made,0));
  $('pTotalQC').textContent=fmt(lots.reduce((s,x)=>s+x.qc_good,0));$('pTotalReceived').textContent=fmt(lots.reduce((s,x)=>s+x.received,0));$('pTotalPending').textContent=fmt(lots.reduce((s,x)=>s+x.made-x.qc_inspected,0));
- $('productionRows').innerHTML=lots.map(x=>{const pendingQC=Math.max(0,x.made-x.qc_inspected),pendingWh=Math.max(0,x.qc_good-x.received),pendingShip=Math.max(0,x.received-x.issued);let next=pendingQC>0?`<button class="btn secondary" onclick="generateStageQRForLot('${x.id}','quality')">QR → Calidad</button>`:pendingWh>0?`<button class="btn secondary" onclick="generateStageQRForLot('${x.id}','receipt')">QR → Almacén</button>`:pendingShip>0?`<button class="btn secondary" onclick="generateStageQRForLot('${x.id}','dispatch')">QR → Ventas</button>`:'<span class="pill green">Proceso completo</span>';return `<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.machine)}</td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td class="up">${fmt(x.qc_good)}</td><td class="bad">${fmt(x.qc_rejected)}</td><td class="warn">${fmt(x.qc_held)}</td><td>${fmt(x.received)}</td><td><b class="${pendingQC>0?'warn':'up'}">${fmt(pendingQC)}</b></td><td><span class="pill ${pendingQC>0?'amber':pendingWh>0?'green':pendingShip>0?'':'green'}">${pendingQC>0?'En calidad':pendingWh>0?'Liberado · pendiente almacén':pendingShip>0?(x.issued>0?'Parcialmente vendido · en almacén':'En almacén'):'Vendido / surtido'}</span></td><td>${next}</td></tr>`}).join('')||'<tr><td colspan="12">Aún no hay producción.</td></tr>';
+ $('productionRows').innerHTML=lots.map(x=>{const pendingQC=Math.max(0,x.made-x.qc_inspected);let next=pendingQC>0?`<button class="btn secondary" onclick="generateStageQRForLot('${x.id}','quality')">QR → Calidad</button>`:'<span class="pill green">Inspeccionado por Calidad</span>';const pendingWh=Math.max(0,x.qc_good-x.received),pendingShip=Math.max(0,x.received-x.issued);return `<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.machine)}</td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td class="up">${fmt(x.qc_good)}</td><td class="bad">${fmt(x.qc_rejected)}</td><td class="warn">${fmt(x.qc_held)}</td><td>${fmt(x.received)}</td><td><b class="${pendingQC>0?'warn':'up'}">${fmt(pendingQC)}</b></td><td><span class="pill ${pendingQC>0?'amber':pendingWh>0?'green':pendingShip>0?'':'green'}">${pendingQC>0?'Pendiente de inspección':pendingWh>0?'Liberado · pendiente almacén':pendingShip>0?(x.issued>0?'Parcialmente vendido · en almacén':'En almacén'):'Vendido / surtido'}</span></td><td>${next}</td></tr>`}).join('')||'<tr><td colspan="12">Aún no hay producción.</td></tr>';
 }
 async function renderWarehouse(){
  if(!companyId)return;const t=totals();
@@ -552,7 +544,16 @@ async function createTraceLot(){
 function advanceToReceipt(){traceStep=2;renderTrace()}
 async function confirmTraceReceipt(){if(!ensureRole(['admin','warehouse']))return;let l=activeLot(),qty=Number($('tReceived').value);if(!Number.isInteger(qty)||qty<1)return alert('Captura una cantidad recibida válida.');const {error}=await sb.rpc('register_lot_movement',{p_lot_id:l.id,p_movement_type:'receipt',p_quantity:qty,p_location:$('tLocation').value,p_order_number:null,p_notes:$('tNotes').value});if(error)return alert(error.message);await loadLots();traceStep=3;renderTrace();renderDashboard();renderOperations()}
 async function confirmDispatch(){if(!ensureRole(['admin','warehouse','sales']))return;let l=activeLot(),qty=Number($('tIssue').value);if(!Number.isInteger(qty)||qty<1)return alert('Captura una cantidad válida.');const {error}=await sb.rpc('register_lot_movement',{p_lot_id:l.id,p_movement_type:'dispatch',p_quantity:qty,p_location:'Embarques',p_order_number:$('tOrder').value,p_notes:null});if(error)return alert(error.message);await loadLots();traceStep=3;renderTrace();renderDashboard();renderOperations()}
-function generateStageQRForLot(id,stage){const l=lots.find(x=>x.id===id);if(!l)return alert('No se encontró el lote.');const pending=stage==='quality'?l.made-l.qc_inspected:stage==='receipt'?l.qc_good-l.received:stage==='dispatch'?l.received-l.issued:0;if(pending<=0)return alert('No hay cantidad pendiente para esta etapa.');const p=makePayload(stage,l);p.qty=pending;drawQR($('qrCode'),p);$('qrTitle').textContent=l.lot+' · '+stageName(stage);$('qrDesc').textContent=`${l.product}: ${fmt(pending)} piezas pendientes. Escanea para abrir el registro de ${stageName(stage)}.`;$('qrLink').textContent=currentQRLink;$('qrLink').classList.remove('hidden');showPage('qr');$('qrLotSelect').value=l.id;}
+function generateStageQRForLot(id,stage){const l=lots.find(x=>x.id===id);if(!l)return alert('No se encontró el lote.');const pending=stage==='quality'?l.made-l.qc_inspected:stage==='receipt'?l.qc_good-l.received:stage==='dispatch'?l.received-l.issued:0;if(pending<=0)return alert('No hay cantidad pendiente para esta etapa.');const p=makePayload(stage,l);p.qty=pending;currentQRLink=buildURL(p);$('qrTitle').textContent=l.lot+' · '+stageName(stage);$('qrDesc').textContent=`${l.product}: ${fmt(pending)} piezas pendientes.`;$('qrLink').textContent=currentQRLink;$('qrLink').classList.remove('hidden');showPage('qr');$('qrLotSelect').value=l.id;openQRWindow(p,currentQRLink);}
+function openQRWindow(payload,url){
+ const w=window.open('','qrStageWindow','width=430,height=610,resizable=yes,scrollbars=yes');
+ if(!w){alert('El navegador bloqueó la ventana emergente. Permite ventanas emergentes para generar e imprimir el QR.');return;}
+ const title=`${payload.lot} · ${stageName(payload.stage)}`,safeTitle=esc(title),safeProduct=esc(payload.product),safeLot=esc(payload.lot),safeQty=fmt(payload.qty),safeUrl=esc(url);
+ w.document.open();w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle}</title><style>body{font-family:Arial,sans-serif;color:#14243a;margin:0;padding:24px;text-align:center}h2{font-size:19px;margin:0 0 8px}.muted{color:#667085;font-size:13px;line-height:1.5}#qr{display:grid;place-items:center;margin:20px auto;width:220px;min-height:220px}#qr img{max-width:100%}.buttons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}button{border:0;border-radius:8px;padding:11px 14px;font-weight:700;cursor:pointer;background:#edf3f8;color:#14243a}button.primary{background:#2878d0;color:white}.url{font-size:10px;word-break:break-all;background:#f5f7fa;padding:9px;border-radius:7px;margin-top:12px}@media print{.buttons,.url{display:none}body{padding:8px}}</style></head><body><h2>${safeTitle}</h2><div class="muted">${safeProduct}<br>${safeQty} piezas pendientes para la siguiente etapa</div><div id="qr"></div><div class="buttons"><button class="primary" onclick="shareQR()">Compartir</button><button onclick="window.print()">Imprimir</button><button onclick="copyLink()">Copiar enlace</button></div><div class="url">${safeUrl}</div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script><script>const qrUrl=${JSON.stringify(url)};new QRCode(document.getElementById('qr'),{text:qrUrl,width:210,height:210,colorDark:'#14243a',colorLight:'#fff'});async function shareQR(){if(navigator.share){try{await navigator.share({title:${JSON.stringify(title)},text:'${safeLot} · ${safeQty} piezas · ${safeProduct}',url:qrUrl})}catch(e){}}else{copyLink()}}async function copyLink(){try{await navigator.clipboard.writeText(qrUrl);alert('Enlace copiado')}catch(e){prompt('Copia el enlace',qrUrl)}}<\/script></body></html>`);
+ w.document.close();
+}
+function nextStageForLot(l){if(l.made>l.qc_inspected)return 'quality';if(l.qc_good>l.received)return 'receipt';if(l.received>l.issued)return 'dispatch';return null;}
+function renderQRStageRows(){const body=$('qrStageRows');if(!body)return;body.innerHTML=lots.map(l=>{const stage=nextStageForLot(l),status=l.made>l.qc_inspected?'En calidad':l.qc_good>l.received?'Liberado · pendiente almacén':l.received>l.issued?(l.issued>0?'Parcialmente surtido':'En almacén'):'Proceso completado';const action=stage?`<button class="btn secondary" onclick="generateStageQRForLot('${l.id}','${stage}')">QR → ${stage==='quality'?'Calidad':stage==='receipt'?'Almacén':'Ventas'}</button>`:'<span class="pill green">Sin pendiente</span>';return `<tr><td><b>${esc(l.lot)}</b></td><td>${esc(l.product)}</td><td>${fmt(l.made)}</td><td class="up">${fmt(l.qc_good)}</td><td class="bad">${fmt(l.qc_rejected)}</td><td class="warn">${fmt(l.qc_held)}</td><td>${fmt(l.received)}</td><td>${fmt(l.issued)}</td><td><span class="pill">${status}</span></td><td>${action}</td></tr>`}).join('')||'<tr><td colspan="10">No hay lotes registrados.</td></tr>';}
 function makePayload(stage,l){return {stage,lot_id:l.id,lot:l.lot,company_id:companyId,product:l.product,machine:l.machine,qty:stage==='receipt'?l.made-l.received:stage==='dispatch'?l.received-l.issued:l.made,order:'',made:l.made,received:l.received,issued:l.issued}}
 function makeStageQR(stage){let l=activeLot();if(!l)return;drawQR($('traceQR'),makePayload(stage,l));$('traceQRTitle').textContent=l.lot+' · '+stageName(stage);$('traceQRText').textContent='Escanea para abrir el formulario móvil precargado.'}
 function traceMakeQR(){let l=activeLot();if(!l)return alert('Primero registra o abre un lote.');makeStageQR(l.received===0?'receipt':'dispatch')}
@@ -560,7 +561,7 @@ function stageName(s){return s==='production'?'Producción':s==='quality'?'Inspe
 function generateQualityQRFromSelection(){const id=$('qcLot')?.value;if(!id)return alert('Selecciona un lote pendiente de inspección.');generateStageQRForLot(id,'quality')}
 function baseURL(){return location.href.split('#')[0]}function encode(p){return btoa(unescape(encodeURIComponent(JSON.stringify(p))))}function buildURL(p){return baseURL()+'#capture='+encodeURIComponent(encode(p))}
 function drawQR(box,p){currentQRLink=buildURL(p);box.innerHTML='';if(window.QRCode)new QRCode(box,{text:currentQRLink,width:175,height:175,colorDark:'#14243a',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});else box.textContent='No se pudo cargar QR.'}
-function populateQRLots(){const sel=$('qrLotSelect');if(!sel)return;sel.innerHTML=lots.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${esc(l.product)} · ${l.made} pzas</option>`).join('');}
+function populateQRLots(){const sel=$('qrLotSelect');if(sel)sel.innerHTML=lots.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${esc(l.product)} · ${l.made} pzas</option>`).join('');renderQRStageRows();}
 function generateQR(){const l=lots.find(x=>x.id===$('qrLotSelect').value);if(!l)return alert('Primero registra un lote de producción.');const stage=l.made>l.qc_inspected?'quality':l.qc_good>l.received?'receipt':l.received>l.issued?'dispatch':null;if(!stage)return alert('Este lote ya no tiene una etapa pendiente.');generateStageQRForLot(l.id,stage)}
 function copyQRLink(){if(!currentQRLink)return alert('Primero genera un QR.');navigator.clipboard?.writeText(currentQRLink).then(()=>alert('Enlace copiado.')).catch(()=>prompt('Copia el enlace:',currentQRLink))}
 function decodeHash(){try{let m=location.hash.match(/capture=([^&]+)/);return m?JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1]))))):null}catch(e){return null}}
