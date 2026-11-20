@@ -17,7 +17,7 @@ main{max-width:1250px;margin:22px auto;padding:0 16px 38px}.pagehead{display:fle
 .card{background:white;border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:0 5px 18px rgba(20,36,58,.045);min-width:0}.label{font-size:11px;color:var(--muted)}.value{font-size:25px;font-weight:760;margin:8px 0 3px;letter-spacing:-.4px}.hint{font-size:11px;color:var(--muted);line-height:1.5}.up{color:var(--green);font-weight:700}.warn{color:var(--amber);font-weight:700}.bad{color:var(--red);font-weight:700}
 h3{font-size:14px;margin:0 0 13px}.subhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.pill{display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:5px 8px;background:#eaf2fb;color:#28639c;white-space:nowrap}.pill.green{background:#e8f6ee;color:#16734f}.pill.amber{background:#fff5df;color:#96620e}.pill.red{background:#fdecea;color:#ae342e}
 .bars{height:145px;display:flex;align-items:end;gap:11px;border-bottom:1px solid var(--line);padding:8px}.barcol{flex:1;height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:5px}.bar{width:65%;max-width:36px;background:linear-gradient(#58a8ed,#2878d0);border-radius:5px 5px 0 0}.barcol small,.barcol b{font-size:10px;color:var(--muted)}
-.progress{margin:12px 0}.ptop,.metric{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:6px}.track{height:8px;background:#edf1f5;border-radius:20px;overflow:hidden}.fill{height:100%;background:var(--blue);border-radius:20px}.fill.green{background:#20a477}.fill.amber{background:#e0a12e}.metric{padding:10px 0;border-bottom:1px solid #edf1f5;margin:0}.metric:last-child{border:0}
+.stock-low{background:#fff0ef!important;color:#b42318!important;font-weight:800}.stock-warn{background:#fff5df!important;color:#96620e!important;font-weight:800}.stock-good{background:#e8f6ee!important;color:#16734f!important;font-weight:800}.stock-pill{display:inline-block;padding:5px 9px;border-radius:20px;font-weight:800;font-size:11px}.stock-low.stock-pill{background:#fde2e0;color:#ae342e}.stock-warn.stock-pill{background:#fff0cc;color:#96620e}.stock-good.stock-pill{background:#d9f2e4;color:#16734f}.machine-row{display:grid;grid-template-columns:minmax(115px,1.2fr) 2fr 70px 75px;gap:9px;align-items:center;padding:9px 0;border-bottom:1px solid #edf1f5;font-size:11px}.machine-track{height:9px;background:#edf1f5;border-radius:20px;overflow:hidden}.machine-fill{height:100%;background:linear-gradient(90deg,#58a8ed,#2878d0);border-radius:20px}.warehouse-card{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff}.warehouse-card h4{margin:0 0 8px;font-size:13px}.warehouse-card .wh-total{font-size:23px;font-weight:800;margin:3px 0 8px}.warehouse-product{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #edf1f5;font-size:11px}.progress{margin:12px 0}.ptop,.metric{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:6px}.track{height:8px;background:#edf1f5;border-radius:20px;overflow:hidden}.fill{height:100%;background:var(--blue);border-radius:20px}.fill.green{background:#20a477}.fill.amber{background:#e0a12e}.metric{padding:10px 0;border-bottom:1px solid #edf1f5;margin:0}.metric:last-child{border:0}
 table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;padding:9px 7px;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:10px 7px;border-bottom:1px solid #edf1f5}tr:last-child td{border:0}
 .btn{border:0;border-radius:8px;padding:10px 13px;font-size:12px;font-weight:700;cursor:pointer}.primary{background:var(--blue);color:#fff}.secondary{background:#edf3f8;color:var(--navy)}.outline{background:white;border:1px solid var(--line);color:var(--navy)}.danger{background:#fff0ef;color:#ae342e}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field.full{grid-column:1/-1}label{font-size:11px;font-weight:700;color:#475467}input,select,textarea{width:100%;min-width:0;border:1px solid #d5dee8;border-radius:8px;padding:10px 11px;font-size:13px;background:white;color:#1d2939}input:focus,select:focus,textarea:focus{outline:2px solid #dceeff;border-color:var(--blue)}textarea{min-height:65px;resize:vertical}
@@ -43,6 +43,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
 <nav>
 <button class="active" data-page="dashboard">Dashboard CEO</button>
 <button data-page="production">Producción</button>
+<button data-page="quality">Calidad</button>
 <button data-page="warehouse">Almacén</button>
 <button data-page="sales">Ventas y órdenes</button>
 <button data-page="qr">Generar QR</button>
@@ -82,6 +83,22 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
   <div class="card"><div class="label">En tránsito / por recibir</div><div class="value" id="kTransit">0</div></div>
  </div>
  <div class="card" style="margin-bottom:13px"><div class="metric"><span>Horas de producción registradas</span><b id="kHours">0 h</b></div><p class="hint">Datos consolidados de producción, recepciones, compromisos y surtidos registrados en Supabase.</p></div>
+ <div class="grid two" style="margin-bottom:13px">
+  <div class="card"><h3>Producción por máquina y producto</h3><div id="machineProductionChart"></div></div>
+  <div class="card"><h3>Desempeño de máquinas</h3><div class="grid three" style="grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><div class="warehouse-card"><div class="label">Más horas trabajadas</div><div class="value" style="font-size:17px" id="machineMostHours">—</div><div class="hint" id="machineMostHoursValue">0 h</div></div><div class="warehouse-card"><div class="label">Más paros registrados</div><div class="value" style="font-size:17px" id="machineMostStops">—</div><div class="hint" id="machineMostStopsValue">0 eventos</div></div></div><div class="metric"><span>Mayor tiempo detenido</span><b id="machineMostDowntime">—</b></div><div class="hint" id="downtimeDataHint">Los paros se contabilizan cuando se registran en la bitácora.</div></div>
+ </div>
+ <div class="card" style="margin-bottom:13px"><div class="subhead"><h3>Bitácora de paros de máquina</h3><span class="pill amber">Captura manual · Demo</span></div><div class="fields"><div class="field"><label>Máquina</label><select id="dtMachine"></select></div><div class="field"><label>Duración del paro (minutos)</label><input id="dtMinutes" type="number" min="1" value="15"></div><div class="field"><label>Causa del paro</label><select id="dtReason"><option>Falla mecánica</option><option>Falla eléctrica</option><option>Cambio de molde</option><option>Falta de material</option><option>Ajuste de proceso</option><option>Mantenimiento</option><option>Sin operador</option><option>Otro</option></select></div><div class="field"><label>Observaciones</label><input id="dtNotes" placeholder="Descripción breve (opcional)"></div></div><div class="actions"><button class="btn secondary" onclick="registerDowntime()">Registrar paro</button></div><div class="hint" style="margin-top:8px">La máquina con más paros se calcula por número de eventos; la de mayor tiempo detenido se calcula por minutos acumulados.</div></div>
+ <div class="card" style="margin-bottom:13px"><h3>Calidad · Resultado de inspecciones</h3>
+  <div class="grid three" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:9px">
+   <div class="warehouse-card"><div class="label">Buenas liberadas</div><div class="value up" id="qGoodKpi">0</div></div>
+   <div class="warehouse-card"><div class="label">Rechazadas</div><div class="value bad" id="qRejectedKpi">0</div></div>
+   <div class="warehouse-card"><div class="label">Retenidas</div><div class="value warn" id="qHeldKpi">0</div></div>
+  </div><div class="grid two" style="margin-top:10px"><div><div class="hint">Distribución de inspecciones</div><div id="qualityDistribution" style="display:flex;height:14px;border-radius:20px;overflow:hidden;background:#edf1f5;margin-top:7px"></div><div id="qualityDistributionText" class="hint"></div></div><div><div class="hint">Defectos más frecuentes</div><div id="qualityDefectSummary"></div></div></div>
+ </div>
+ <div class="grid two" style="margin-bottom:13px">
+  <div class="card"><h3>Inventario por producto · Punto de reorden 100 pzas</h3><div class="hint" style="margin-bottom:9px"><span class="stock-pill stock-low">Rojo &lt;100</span> <span class="stock-pill stock-warn">Naranja 100–120</span> <span class="stock-pill stock-good">Verde &gt;120</span></div><div style="overflow:auto"><table><thead><tr><th>Producto</th><th>Disponible</th><th>Estado</th></tr></thead><tbody id="dashboardReorderRows"></tbody></table></div></div>
+  <div class="card"><h3>Existencia por almacén y producto</h3><div id="dashboardWarehouseCards" class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:9px"></div><div class="hint" id="warehouseBalanceHint" style="margin-top:9px"></div></div>
+ </div>
  <div class="grid two">
   <div class="card"><h3>Inventario y compromisos por producto</h3><div style="overflow:auto"><table><thead><tr><th>Producto</th><th>Fabricado</th><th>Físico</th><th>Comprometido</th><th>Disponible</th><th>Surtido</th><th>Tránsito</th></tr></thead><tbody id="dashboardProducts"></tbody></table></div></div>
   <div class="card"><h3>Órdenes pendientes</h3><div style="overflow:auto"><table><thead><tr><th>Orden</th><th>Producto</th><th>Solicitado</th><th>Pendiente</th><th>Surtido</th><th>Estado</th></tr></thead><tbody id="dashboardOrders"></tbody></table></div></div>
@@ -101,14 +118,54 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
    <div class="field"><label>Horas de producción</label><input id="pHours" type="number" step=".25" value="8"></div>
   </div><div class="notice">La producción se registra una sola vez. El inventario aumenta únicamente cuando almacén confirma cada recepción.</div>
   <button class="btn primary" onclick="createProductionFromModule()">Agregar producción</button></div>
-  <div class="card"><h3>Resumen de producción</h3><div class="metric"><span>Lotes registrados</span><b id="pLotCount">0</b></div><div class="metric"><span>Piezas fabricadas</span><b id="pTotalMade">0</b></div><div class="metric"><span>Entregadas a almacén</span><b id="pTotalReceived">0</b></div><div class="metric"><span>Pendientes de entregar</span><b id="pTotalPending">0</b></div></div>
+  <div class="card"><h3>Resumen de producción</h3><div class="metric"><span>Lotes registrados</span><b id="pLotCount">0</b></div><div class="metric"><span>Piezas fabricadas</span><b id="pTotalMade">0</b></div><div class="metric"><span>Liberadas por calidad</span><b id="pTotalQC">0</b></div><div class="metric"><span>Entregadas a almacén</span><b id="pTotalReceived">0</b></div><div class="metric"><span>Pendientes de inspección</span><b id="pTotalPending">0</b></div></div>
  </div>
- <div class="card"><h3>Registro acumulado de producción</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Máquina</th><th>Producto</th><th>Fabricado</th><th>Entregado</th><th>Pendiente</th><th>Acción</th></tr></thead><tbody id="productionRows"></tbody></table></div></div>
+ <div class="card"><h3>Registro acumulado de producción</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Máquina</th><th>Producto</th><th>Fabricado</th><th>Buenas liberadas</th><th>Entregado</th><th>Pendiente QC</th><th>Acción</th></tr></thead><tbody id="productionRows"></tbody></table></div></div>
+</section>
+<section id="quality" class="hidden">
+ <div class="pagehead"><div><h1>Control de calidad</h1><p>Inspección por lote. Solo las piezas conformes se liberan para recepción en almacén.</p></div></div>
+ <div class="grid three">
+  <div class="card"><div class="label">Pendientes de inspección</div><div class="value" id="qcPending">0</div></div>
+  <div class="card"><div class="label">Buenas liberadas</div><div class="value up" id="qcReleased">0</div></div>
+  <div class="card"><div class="label">Retenidas</div><div class="value warn" id="qcHeld">0</div></div>
+ </div>
+ <div class="grid two">
+  <div class="card"><h3>Registrar inspección</h3>
+   <div class="fields">
+    <div class="field full"><label>Lote pendiente</label><select id="qcLot" onchange="updateQualityLotInfo()"></select></div>
+    <div class="field"><label>Inspeccionadas en esta revisión</label><input id="qcInspected" type="number" min="1" value="100"></div>
+    <div class="field"><label>Buenas liberadas</label><input id="qcGood" type="number" min="0" value="100"></div>
+    <div class="field"><label>Rechazadas</label><input id="qcRejected" type="number" min="0" value="0"></div>
+    <div class="field"><label>Retenidas / por evaluar</label><input id="qcHeldInput" type="number" min="0" value="0"></div>
+   </div>
+   <div class="notice info">Buenas + rechazadas + retenidas deben sumar la cantidad inspeccionada. Solo las buenas pasan a almacén.</div>
+   <div class="subhead"><h3 style="margin:0">Defectos detectados</h3><button class="btn secondary" onclick="addQualityDefectRow()">Agregar defecto</button></div>
+   <div style="overflow:auto"><table><thead><tr><th>Defecto</th><th>Disposición</th><th>Cantidad</th><th></th></tr></thead><tbody id="qcDefectRows"></tbody></table></div>
+   <div class="field" style="margin-top:10px"><label>Observaciones</label><textarea id="qcNotes"></textarea></div>
+   <div class="actions"><button class="btn primary" onclick="submitQualityInspection()">Guardar inspección y liberar buenas</button></div>
+  </div>
+  <div class="card"><h3>Resumen del lote</h3><div id="qcLotSummary" class="notice">Selecciona un lote.</div>
+   <h3 style="margin-top:16px">Resolver piezas retenidas</h3>
+   <div class="field"><label>Lote con piezas retenidas</label><select id="qcResolveLot"></select></div>
+   <div class="field" style="margin-top:8px"><label>Cantidad a resolver</label><input id="qcResolveQty" type="number" min="1" value="1"></div>
+   <div class="field" style="margin-top:8px"><label>Disposición final</label><select id="qcResolveDisposition"><option value="good">Liberar como buena después de retrabajo</option><option value="rejected">Rechazo definitivo</option></select></div>
+   <div class="field" style="margin-top:8px"><label>Defecto final (obligatorio si se rechaza)</label><select id="qcResolveDefect"></select></div>
+   <div class="field" style="margin-top:8px"><label>Notas de resolución</label><input id="qcResolveNotes" placeholder="Retrabajo realizado / evaluación final"></div>
+   <button class="btn secondary" style="margin-top:10px" onclick="resolveQualityHold()">Aplicar disposición</button>
+   <h3 style="margin-top:16px">Clasificación</h3>
+   <div class="metric"><b class="up">Buenas</b><span>Conformes; pasan a almacén.</span></div>
+   <div class="metric"><b class="bad">Rechazadas</b><span>No conformes; no pasan a inventario.</span></div>
+   <div class="metric"><b class="warn">Retenidas</b><span>Pendientes de evaluación o retrabajo.</span></div>
+   <p class="hint">Las retenidas no son inventario disponible. Su disposición posterior se registra en una nueva operación de calidad.</p>
+  </div>
+ </div>
+ <div class="card" style="margin-top:13px"><h3>Historial de inspecciones</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Inspeccionadas</th><th>Buenas</th><th>Rechazadas</th><th>Retenidas</th><th>Notas</th></tr></thead><tbody id="qcHistoryRows"></tbody></table></div></div>
+ <div class="card" style="margin-top:13px"><h3>Detalle de defectos</h3><div style="overflow:auto"><table><thead><tr><th>Defecto</th><th>Disposición</th><th>Cantidad</th><th>Fecha</th><th>Lote</th></tr></thead><tbody id="qcDefectHistoryRows"></tbody></table></div></div>
 </section>
 <section id="warehouse" class="hidden">
  <div class="pagehead"><div><h1>Almacén</h1><p>Confirma recepciones parciales o completas y consulta el historial por destino.</p></div></div>
  <div class="grid three"><div class="card"><div class="label">Inventario físico</div><div class="value" id="wStock">0</div></div><div class="card"><div class="label">Pendiente de recibir</div><div class="value" id="wPending">0</div></div><div class="card"><div class="label">Recepciones registradas</div><div class="value" id="wMovements">0</div></div></div>
- <div class="card"><h3>Producción pendiente de recibir</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Producto</th><th>Fabricado</th><th>Recibido</th><th>Pendiente</th><th>Recibir ahora</th><th>Destino</th><th></th></tr></thead><tbody id="warehousePendingRows"></tbody></table></div></div>
+ <div class="card"><h3>Producción pendiente de recibir</h3><div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Lote</th><th>Producto</th><th>Fabricado</th><th>Liberado QC</th><th>Recibido</th><th>Pendiente</th><th>Recibir ahora</th><th>Destino</th><th></th></tr></thead><tbody id="warehousePendingRows"></tbody></table></div></div>
  <div class="card" style="margin-top:13px"><h3>Historial de recepciones</h3><div style="overflow:auto"><table><thead><tr><th>Fecha y hora</th><th>Lote</th><th>Producto</th><th>Entrada</th><th>Almacén destino</th></tr></thead><tbody id="warehouseHistoryRows"></tbody></table></div></div>
 </section>
 <section id="sales" class="hidden">
@@ -162,7 +219,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
  onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';s.onload=function(){if(typeof initSupabase==='function')initSupabase()};s.onerror=function(){var m=document.getElementById('authMessage');if(m)m.textContent='No se pudo cargar la biblioteca de conexión. Verifica internet o las restricciones de red.'};document.head.appendChild(s)})()"></script>
 <script>
 const $=id=>document.getElementById(id);
-let sb=null, companyId=null, plantId=null, currentProfile=null, currentRole=null, lots=[], activeLotId=null, traceStep=0, currentPayload=null, currentQRLink='', productsCatalog=[], salesLines=[], receiptMovements=[];
+let sb=null, companyId=null, plantId=null, currentProfile=null, currentRole=null, lots=[], activeLotId=null, traceStep=0, currentPayload=null, currentQRLink='', productsCatalog=[], salesLines=[], receiptMovements=[], machineCatalog=[], downtimeEvents=[], qualityInspections=[], qualityDefectLines=[], qualityHoldResolutions=[];
 const CONFIG_KEY='tdr_supabase_config_v1';
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmt(n){return Number(n||0).toLocaleString('es-MX')}
@@ -206,7 +263,7 @@ async function afterLogin(user){
  $('currentUser').textContent=currentProfile+' · '+currentRole;
  $('logoutBtn').style.display='inline-block';$('authScreen').classList.add('hidden');
  $('connectionStatus').textContent='Conectado · '+(m.companies?.name||'Empresa');
- await loadLots();await loadSalesData();await loadReceiptMovements();renderDashboard();renderProduction();renderWarehouse();renderSales();
+ await loadLots();await loadSalesData();await loadReceiptMovements();await loadMachineData();await loadQualityData();renderDashboard();renderProduction();renderQuality();renderWarehouse();renderSales();
  if(currentPayload){const pending=currentPayload;currentPayload=null;await openMobile(pending)}
  // Subscribe to database changes for this company.
  sb.removeAllChannels();
@@ -214,18 +271,22 @@ async function afterLogin(user){
   .on('postgres_changes',{event:'*',schema:'public',table:'production_lots',filter:'company_id=eq.'+companyId},refreshAll)
   .on('postgres_changes',{event:'*',schema:'public',table:'inventory_movements',filter:'company_id=eq.'+companyId},refreshAll)
   .on('postgres_changes',{event:'*',schema:'public',table:'sales_order_lines',filter:'company_id=eq.'+companyId},refreshAll)
+  .on('postgres_changes',{event:'*',schema:'public',table:'machine_downtime_events',filter:'company_id=eq.'+companyId},refreshAll)
+  .on('postgres_changes',{event:'*',schema:'public',table:'quality_inspections',filter:'company_id=eq.'+companyId},refreshAll)
+  .on('postgres_changes',{event:'*',schema:'public',table:'quality_defect_lines',filter:'company_id=eq.'+companyId},refreshAll)
+  .on('postgres_changes',{event:'*',schema:'public',table:'quality_hold_resolutions',filter:'company_id=eq.'+companyId},refreshAll)
   .subscribe();
 }
 async function logout(){if(sb)await sb.auth.signOut();companyId=null;plantId=null;lots=[];$('authScreen').classList.remove('hidden');$('logoutBtn').style.display='none';$('currentUser').textContent='';$('connectionStatus').textContent='Desconectado'}
 function ensureRole(roles){if(!roles.includes(currentRole)){alert('Tu perfil no tiene permiso para realizar esta operación.');return false}return true}
 async function loadLots(){
- const {data,error}=await sb.from('production_lots').select('id,company_id,plant_id,product_id,machine_id,lot_code,produced_qty,received_qty,issued_qty,production_hours,operator_name,status,created_at,products(name,sku),machines(name,code)').eq('company_id',companyId).order('created_at',{ascending:false});
+ const {data,error}=await sb.from('production_lots').select('id,company_id,plant_id,product_id,machine_id,lot_code,produced_qty,received_qty,issued_qty,production_hours,operator_name,status,created_at,qc_inspected_qty,qc_good_qty,qc_rejected_qty,qc_held_qty,products(name,sku),machines(name,code)').eq('company_id',companyId).order('created_at',{ascending:false});
  if(error){console.error(error);return msg('connectionStatus','Error al consultar datos')}
- lots=(data||[]).map(l=>({...l,id:l.id,product_id:l.product_id,lot:l.lot_code,product:l.products?.name||'Producto',machine:l.machines?.name||'Sin máquina',made:l.produced_qty,received:l.received_qty,issued:l.issued_qty,hours:Number(l.production_hours),operator:l.operator_name,status:l.status,created_at:l.created_at,events:[]}));
+ lots=(data||[]).map(l=>({...l,id:l.id,product_id:l.product_id,lot:l.lot_code,product:l.products?.name||'Producto',machine:l.machines?.name||'Sin máquina',made:l.produced_qty,received:l.received_qty,issued:l.issued_qty,hours:Number(l.production_hours),operator:l.operator_name,status:l.status,created_at:l.created_at,qc_inspected:Number(l.qc_inspected_qty||0),qc_good:Number(l.qc_good_qty||0),qc_rejected:Number(l.qc_rejected_qty||0),qc_held:Number(l.qc_held_qty||0),events:[]}));
  const {data:pc}=await sb.from('products').select('id,name,sku').eq('company_id',companyId).eq('is_active',true).order('name');
  productsCatalog=pc||[];
 }
-function showPage(id){document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='dashboard')renderDashboard();if(id==='production')renderProduction();if(id==='warehouse')renderWarehouse();if(id==='sales')renderSales();if(id==='qr')populateQRLots()}
+function showPage(id){document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='dashboard')renderDashboard();if(id==='production')renderProduction();if(id==='quality')renderQuality();if(id==='warehouse')renderWarehouse();if(id==='sales')renderSales();if(id==='qr')populateQRLots()}
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 function productBalances(){
  const map={};
@@ -241,12 +302,30 @@ async function loadSalesData(){
  if(error){console.error(error);salesLines=[];return} salesLines=data||[];
 }
 async function loadReceiptMovements(){
- const {data,error}=await sb.from('inventory_movements').select('id,lot_id,quantity,location,created_at,production_lots(lot_code,products(name))').eq('company_id',companyId).eq('movement_type','receipt').order('created_at',{ascending:false}).limit(250);
+ const {data,error}=await sb.from('inventory_movements').select('id,lot_id,movement_type,quantity,location,source_location,created_at,production_lots(lot_code,products(name))').eq('company_id',companyId).in('movement_type',['receipt','dispatch']).order('created_at',{ascending:false}).limit(1000);
  if(error){console.error(error);receiptMovements=[];return} receiptMovements=data||[];
 }
+async function loadQualityData(){
+ const [{data:a,error:ae},{data:d,error:de},{data:r,error:re}]=await Promise.all([
+  sb.from('quality_inspections').select('id,lot_id,inspected_qty,good_qty,rejected_qty,held_qty,notes,created_at,production_lots(lot_code,products(name))').eq('company_id',companyId).order('created_at',{ascending:false}).limit(1000),
+  sb.from('quality_defect_lines').select('id,inspection_id,defect_code,disposition,quantity,created_at,quality_inspections(lot_id,production_lots(lot_code))').eq('company_id',companyId).order('created_at',{ascending:false}).limit(2000),
+  sb.from('quality_hold_resolutions').select('id,lot_id,quantity,final_disposition,defect_code,notes,created_at,production_lots(lot_code)').eq('company_id',companyId).order('created_at',{ascending:false}).limit(1000)
+ ]);
+ qualityInspections=ae?[]:(a||[]);qualityDefectLines=de?[]:(d||[]);qualityHoldResolutions=re?[]:(r||[]);
+}
+async function loadMachineData(){
+ const [{data:machines,error:me},{data:stops,error:de}]=await Promise.all([
+  sb.from('machines').select('id,name,code,manufacturer').eq('company_id',companyId).eq('is_active',true).order('name'),
+  sb.from('machine_downtime_events').select('id,machine_id,duration_minutes,reason,notes,occurred_at,machines(name)').eq('company_id',companyId).order('occurred_at',{ascending:false}).limit(1000)
+ ]);
+ machineCatalog=me?[]:(machines||[]);downtimeEvents=de?[]:(stops||[]);
+ if(me)console.warn('No se pudieron cargar máquinas',me.message);
+ if(de)console.warn('No se pudo cargar bitácora de paros',de.message);
+ const sel=$('dtMachine');if(sel)sel.innerHTML=machineCatalog.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')||'<option value="">Sin máquinas activas</option>';
+}
 async function refreshAll(){
- await loadLots();await loadSalesData();await loadReceiptMovements();
- renderDashboard();renderProduction();renderWarehouse();renderSales();
+ await loadLots();await loadSalesData();await loadReceiptMovements();await loadMachineData();await loadQualityData();
+ renderDashboard();renderProduction();renderQuality();renderWarehouse();renderSales();
  if(!$('trace').classList.contains('hidden'))renderTrace();
 }
 async function renderDashboard(){
@@ -256,6 +335,100 @@ async function renderDashboard(){
  const b=productBalances();
  $('dashboardProducts').innerHTML=b.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${fmt(x.made)}</td><td>${fmt(x.stock)}</td><td>${fmt(x.committed)}</td><td><b>${fmt(x.available)}</b></td><td>${fmt(x.picked)}</td><td>${fmt(x.transit)}</td></tr>`).join('')||'<tr><td colspan="7">Sin producción.</td></tr>';
  $('dashboardOrders').innerHTML=salesLines.filter(x=>x.requested_qty>x.picked_qty+x.cancelled_qty).slice(0,15).map(x=>`<tr><td>${esc(x.sales_orders?.order_number||'')}</td><td>${esc(x.products?.name||'')}</td><td>${fmt(x.requested_qty)}</td><td>${fmt(x.requested_qty-x.picked_qty-x.cancelled_qty)}</td><td>${fmt(x.picked_qty)}</td><td><span class="pill">${esc(x.status)}</span></td></tr>`).join('')||'<tr><td colspan="6">No hay órdenes pendientes.</td></tr>';
+ renderMachineDashboard();renderReorderDashboard();renderWarehouseDashboard();renderQualityDashboard();
+}
+function stockStatus(q){return q<100?{cls:'stock-low',label:'Por debajo del mínimo'}:q<=120?{cls:'stock-warn',label:'En punto de reorden'}:{cls:'stock-good',label:'Nivel saludable'}}
+function renderReorderDashboard(){
+ const rows=productBalances().filter(x=>x.made||x.stock||x.committed).sort((a,b)=>a.available-b.available);
+ $('dashboardReorderRows').innerHTML=rows.map(x=>{const st=stockStatus(x.available);return `<tr><td><b>${esc(x.name)}</b></td><td><span class="stock-pill ${st.cls}">${fmt(x.available)}</span></td><td><span class="${st.cls}">${st.label}</span></td></tr>`}).join('')||'<tr><td colspan="3">Sin inventario registrado.</td></tr>';
+}
+function renderMachineDashboard(){
+ const stats={};machineCatalog.forEach(m=>stats[m.id]={id:m.id,name:m.name,units:0,hours:0,products:{},stops:0,minutes:0});
+ lots.forEach(l=>{if(!l.machine_id||!stats[l.machine_id])return;const x=stats[l.machine_id];x.units+=l.made;x.hours+=l.hours;x.products[l.product]=(x.products[l.product]||0)+l.made});
+ downtimeEvents.forEach(e=>{const x=stats[e.machine_id];if(x){x.stops++;x.minutes+=Number(e.duration_minutes||0)}});
+ const a=Object.values(stats).sort((x,y)=>y.units-x.units),maxUnits=Math.max(1,...a.map(x=>x.units));
+ $('machineProductionChart').innerHTML=a.map(x=>`<div class="machine-row"><div><b>${esc(x.name)}</b><div class="hint">${fmt(x.hours)} h</div></div><div><div class="machine-track"><div class="machine-fill" style="width:${x.units/maxUnits*100}%"></div></div><div class="hint">${Object.entries(x.products).map(([p,q])=>`${esc(p)}: ${fmt(q)}`).join(' · ')||'Sin producción registrada'}</div></div><b>${fmt(x.units)}</b><span class="hint">pzas</span></div>`).join('')||'<p class="hint">No hay máquinas activas.</p>';
+ const mostHours=[...a].sort((x,y)=>y.hours-x.hours)[0],mostStops=[...a].sort((x,y)=>y.stops-x.stops)[0],mostMinutes=[...a].sort((x,y)=>y.minutes-x.minutes)[0];
+ $('machineMostHours').textContent=mostHours?.name||'—';$('machineMostHoursValue').textContent=(mostHours?.hours||0).toFixed(1)+' horas';
+ $('machineMostStops').textContent=mostStops?.stops?mostStops.name:'Sin datos';$('machineMostStopsValue').textContent=(mostStops?.stops||0)+' eventos';
+ $('machineMostDowntime').textContent=mostMinutes?.minutes?`${mostMinutes.name} · ${fmt(mostMinutes.minutes)} min`:'Sin paros registrados';
+ $('downtimeDataHint').textContent=downtimeEvents.length?`${downtimeEvents.length} eventos registrados. La captura actual es manual; posteriormente podrá alimentarse desde PLC.`:'Aún no hay paros capturados. Registra eventos abajo para identificar la máquina con más paros.';
+}
+function warehouseBalances(){
+ const map={};receiptMovements.forEach(m=>{const lot=lots.find(l=>l.id===m.lot_id);if(!lot)return;const loc=m.movement_type==='receipt'?(m.location||'Sin almacén'):(m.source_location||'Salida anterior sin almacén asignado');const key=loc+'|'+m.lot_id;if(!map[key])map[key]={location:loc,lot_id:m.lot_id,product_id:lot.product_id,product:lot.product,qty:0};map[key].qty+=m.movement_type==='receipt'?Number(m.quantity):-Number(m.quantity)});
+ return Object.values(map).filter(x=>x.qty!==0);
+}
+function renderWarehouseDashboard(){
+ const balances=warehouseBalances(),by={};balances.forEach(x=>{if(!by[x.location])by[x.location]={total:0,items:[]};by[x.location].total+=x.qty;by[x.location].items.push(x)});
+ const names=Object.keys(by).sort();$('dashboardWarehouseCards').innerHTML=names.map(name=>`<div class="warehouse-card"><h4>${esc(name)}</h4><div class="wh-total">${fmt(by[name].total)} <span class="hint">pzas</span></div>${by[name].items.sort((a,b)=>b.qty-a.qty).map(x=>`<div class="warehouse-product"><span>${esc(x.product)}</span><b>${fmt(x.qty)}</b></div>`).join('')}</div>`).join('')||'<div class="hint">Aún no hay entradas registradas por almacén.</div>';
+ const unassigned=receiptMovements.filter(m=>m.movement_type==='dispatch'&&!m.source_location).reduce((n,m)=>n+Number(m.quantity),0);
+ $('warehouseBalanceHint').textContent=unassigned?`Hay ${fmt(unassigned)} salidas históricas sin almacén de origen. Se muestran separadas para no asignarlas incorrectamente.`:'Existencia por ubicación = entradas recibidas − salidas surtidas desde ese almacén.';
+}
+async function registerDowntime(){
+ if(!ensureRole(['admin','production']))return;const machine=$('dtMachine').value,minutes=Number($('dtMinutes').value),reason=$('dtReason').value,notes=$('dtNotes').value.trim();
+ if(!machine)return alert('Selecciona una máquina.');if(!Number.isInteger(minutes)||minutes<1)return alert('Captura minutos de paro válidos.');
+ const {error}=await sb.from('machine_downtime_events').insert({company_id:companyId,plant_id:plantId,machine_id:machine,duration_minutes:minutes,reason,notes:notes||null});
+ if(error)return alert(error.message);$('dtMinutes').value=15;$('dtNotes').value='';await loadMachineData();renderDashboard();alert('Paro registrado correctamente.');
+}
+const QUALITY_DEFECTS=['Falta de llenado / pieza incompleta','Rebaba / exceso de material','Quemado / degradación del material','Burbujas, porosidad o vacío','Línea de unión / soldadura débil','Deformación / alabeo','Hundimiento / rechupado','Marca de flujo / líneas de flujo','Contaminación o cambio de color','Dimensiones fuera de tolerancia','Grieta, fractura o fragilidad','Punto de inyección / vestigio excesivo','Falta de compactación','Otro defecto'];
+function addQualityDefectRow(){
+ const tr=document.createElement('tr');tr.className='qc-defect-row';
+ tr.innerHTML=`<td style="min-width:210px"><select class="qc-defect-code">${QUALITY_DEFECTS.map(x=>`<option>${esc(x)}</option>`).join('')}</select></td><td><select class="qc-defect-disposition"><option value="rejected">Rechazo</option><option value="held">Retenida</option></select></td><td><input class="qc-defect-qty" type="number" min="0" value="0"></td><td><button class="btn danger" onclick="this.closest('tr').remove()">×</button></td>`;
+ $('qcDefectRows').appendChild(tr);
+}
+function updateQualityLotInfo(){
+ const l=lots.find(x=>x.id===$('qcLot').value);if(!l){$('qcLotSummary').textContent='Sin lote seleccionado.';return}
+ const pending=Math.max(0,l.made-l.qc_inspected);
+ $('qcInspected').value=pending;$('qcGood').value=pending;$('qcRejected').value=0;$('qcHeldInput').value=0;
+ $('qcLotSummary').innerHTML=`<b>${esc(l.lot)} · ${esc(l.product)}</b><br>Fabricadas: ${fmt(l.made)}<br>Inspeccionadas: ${fmt(l.qc_inspected)}<br>Buenas: ${fmt(l.qc_good)}<br>Rechazadas: ${fmt(l.qc_rejected)}<br>Retenidas: ${fmt(l.qc_held)}<br><b>Pendientes: ${fmt(pending)}</b>`;
+}
+async function renderQuality(){
+ if(!companyId)return;
+ const pending=lots.filter(l=>l.made>l.qc_inspected),selected=$('qcLot').value;
+ $('qcLot').innerHTML=pending.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${esc(l.product)} · ${fmt(l.made-l.qc_inspected)} pzas</option>`).join('')||'<option value="">Sin lotes pendientes</option>';
+ if(pending.some(l=>l.id===selected))$('qcLot').value=selected;else if(pending.length)$('qcLot').value=pending[0].id;
+ if(!$('qcDefectRows').children.length)addQualityDefectRow();updateQualityLotInfo();
+ $('qcResolveDefect').innerHTML=QUALITY_DEFECTS.map(x=>`<option>${esc(x)}</option>`).join('');
+ const heldLots=lots.filter(l=>l.qc_held>0),prevResolve=$('qcResolveLot').value;
+ $('qcResolveLot').innerHTML=heldLots.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${esc(l.product)} · ${fmt(l.qc_held)} retenidas</option>`).join('')||'<option value="">Sin piezas retenidas</option>';
+ if(heldLots.some(l=>l.id===prevResolve))$('qcResolveLot').value=prevResolve;
+ $('qcResolveQty').max=heldLots.find(l=>l.id===$('qcResolveLot').value)?.qc_held||0;
+ $('qcPending').textContent=fmt(lots.reduce((n,l)=>n+Math.max(0,l.made-l.qc_inspected),0));
+ $('qcReleased').textContent=fmt(lots.reduce((n,l)=>n+l.qc_good,0));$('qcHeld').textContent=fmt(lots.reduce((n,l)=>n+l.qc_held,0));
+ $('qcHistoryRows').innerHTML=qualityInspections.map(q=>`<tr><td>${new Date(q.created_at).toLocaleString('es-MX')}</td><td>${esc(q.production_lots?.lot_code||'')}</td><td>${fmt(q.inspected_qty)}</td><td class="up">${fmt(q.good_qty)}</td><td class="bad">${fmt(q.rejected_qty)}</td><td class="warn">${fmt(q.held_qty)}</td><td>${esc(q.notes||'')}</td></tr>`).join('')||'<tr><td colspan="7">Sin inspecciones.</td></tr>';
+ $('qcDefectHistoryRows').innerHTML=[...qualityDefectLines.map(d=>`<tr><td>${esc(d.defect_code)}</td><td>${d.disposition==='rejected'?'Rechazo':'Retenida'}</td><td>${fmt(d.quantity)}</td><td>${new Date(d.created_at).toLocaleString('es-MX')}</td><td>${esc(d.quality_inspections?.production_lots?.lot_code||'')}</td></tr>`),
+ ...qualityHoldResolutions.filter(d=>d.final_disposition==='rejected').map(d=>`<tr><td>${esc(d.defect_code)}</td><td>Rechazo definitivo tras retención</td><td>${fmt(d.quantity)}</td><td>${new Date(d.created_at).toLocaleString('es-MX')}</td><td>${esc(d.production_lots?.lot_code||'')}</td></tr>`)
+ ].join('')||'<tr><td colspan="5">Sin defectos registrados.</td></tr>';
+}
+function renderQualityDashboard(){
+ const good=lots.reduce((n,l)=>n+l.qc_good,0),rej=lots.reduce((n,l)=>n+l.qc_rejected,0),held=lots.reduce((n,l)=>n+l.qc_held,0),total=good+rej+held,pct=v=>total?100*v/total:0;
+ $('qGoodKpi').textContent=fmt(good);$('qRejectedKpi').textContent=fmt(rej);$('qHeldKpi').textContent=fmt(held);
+ $('qualityDistribution').innerHTML=total?`<div style="width:${pct(good)}%;background:#16865b"></div><div style="width:${pct(rej)}%;background:#c2413b"></div><div style="width:${pct(held)}%;background:#b7791f"></div>`:'';
+ $('qualityDistributionText').textContent=total?`${fmt(total)} inspeccionadas · Buenas ${pct(good).toFixed(1)}% · Rechazadas ${pct(rej).toFixed(1)}% · Retenidas ${pct(held).toFixed(1)}%`:'Sin inspecciones registradas.';
+ const by={};qualityDefectLines.filter(d=>d.disposition==='rejected').forEach(d=>by[d.defect_code]=(by[d.defect_code]||0)+Number(d.quantity));
+ qualityHoldResolutions.filter(d=>d.final_disposition==='rejected').forEach(d=>by[d.defect_code]=(by[d.defect_code]||0)+Number(d.quantity));
+ $('qualityDefectSummary').innerHTML=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`<div class="metric"><span>${esc(k)}</span><b>${fmt(v)}</b></div>`).join('')||'<span class="hint">Sin defectos registrados.</span>';
+}
+async function submitQualityInspection(){
+ if(!ensureRole(['admin','quality']))return;
+ const l=lots.find(x=>x.id===$('qcLot').value),i=Number($('qcInspected').value),g=Number($('qcGood').value),r=Number($('qcRejected').value),t=Number($('qcHeldInput').value);
+ if(!l)return alert('Selecciona un lote.');if(![i,g,r,t].every(Number.isInteger)||i<1||g<0||r<0||t<0||g+r+t!==i)return alert('Buenas + rechazadas + retenidas deben sumar lo inspeccionado.');
+ if(i>l.made-l.qc_inspected)return alert('La inspección excede las piezas pendientes.');
+ const defects=[...document.querySelectorAll('.qc-defect-row')].map(x=>({defect_code:x.querySelector('.qc-defect-code').value,disposition:x.querySelector('.qc-defect-disposition').value,quantity:Number(x.querySelector('.qc-defect-qty').value)})).filter(x=>x.quantity>0);
+ if(defects.some(d=>!Number.isInteger(d.quantity)||d.quantity<1))return alert('Revisa cantidades de defectos.');
+ if(defects.filter(d=>d.disposition==='rejected').reduce((n,d)=>n+d.quantity,0)!==r||defects.filter(d=>d.disposition==='held').reduce((n,d)=>n+d.quantity,0)!==t)return alert('El detalle de defectos debe sumar exactamente las piezas rechazadas y retenidas. Elimina filas que no utilices.');
+ const {error}=await sb.rpc('register_quality_inspection',{p_lot_id:l.id,p_inspected_qty:i,p_good_qty:g,p_rejected_qty:r,p_held_qty:t,p_defects:defects,p_notes:$('qcNotes').value.trim()||null});
+ if(error)return alert(error.message);$('qcNotes').value='';$('qcDefectRows').innerHTML='';addQualityDefectRow();await refreshAll();alert('Inspección guardada. Solo las piezas buenas quedaron liberadas para almacén.');
+}
+async function resolveQualityHold(){
+ if(!ensureRole(['admin','quality']))return;
+ const lotId=$('qcResolveLot').value,qty=Number($('qcResolveQty').value),disposition=$('qcResolveDisposition').value;
+ const lot=lots.find(x=>x.id===lotId);if(!lot)return alert('No hay lote con piezas retenidas.');
+ if(!Number.isInteger(qty)||qty<1||qty>lot.qc_held)return alert('La cantidad excede las piezas retenidas del lote.');
+ const defect=disposition==='rejected'?$('qcResolveDefect').value:null;
+ const {error}=await sb.rpc('resolve_quality_hold',{p_lot_id:lotId,p_quantity:qty,p_final_disposition:disposition,p_defect_code:defect,p_notes:$('qcResolveNotes').value.trim()||null});
+ if(error)return alert(error.message);
+ $('qcResolveNotes').value='';await refreshAll();alert(disposition==='good'?'Piezas liberadas como buenas.':'Piezas clasificadas como rechazo definitivo.');
 }
 async function renderProduction(){
  if(!companyId)return;
@@ -267,14 +440,14 @@ async function renderProduction(){
  $('pMachine').innerHTML='<option value="">Sin máquina</option>'+(machines||[]).map(x=>`<option value="${x.id}">${esc(x.name)}${x.manufacturer?' · '+esc(x.manufacturer):''}</option>`).join('');
  $('pOperator').value=currentProfile||'';
  $('pLotCount').textContent=lots.length;$('pTotalMade').textContent=fmt(lots.reduce((s,x)=>s+x.made,0));
- $('pTotalReceived').textContent=fmt(lots.reduce((s,x)=>s+x.received,0));$('pTotalPending').textContent=fmt(lots.reduce((s,x)=>s+x.made-x.received,0));
- $('productionRows').innerHTML=lots.map(x=>`<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.machine)}</td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td>${fmt(x.received)}</td><td><b class="${x.made>x.received?'warn':'up'}">${fmt(x.made-x.received)}</b></td><td><button class="btn secondary" onclick="generateLotReceiptQR('${x.id}')">QR / Entrega</button></td></tr>`).join('')||'<tr><td colspan="8">Aún no hay producción.</td></tr>';
+ $('pTotalQC').textContent=fmt(lots.reduce((s,x)=>s+x.qc_good,0));$('pTotalReceived').textContent=fmt(lots.reduce((s,x)=>s+x.received,0));$('pTotalPending').textContent=fmt(lots.reduce((s,x)=>s+x.made-x.qc_inspected,0));
+ $('productionRows').innerHTML=lots.map(x=>`<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.machine)}</td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td class="up">${fmt(x.qc_good)}</td><td>${fmt(x.received)}</td><td><b class="${x.made>x.qc_inspected?'warn':'up'}">${fmt(x.made-x.qc_inspected)}</b></td><td>${x.made>x.qc_inspected?`<button class="btn secondary" onclick="showPage('quality');$('qcLot').value='${x.id}';updateQualityLotInfo()">Enviar a calidad</button>`:'<span class="pill green">Inspección completa</span>'}</td></tr>`).join('')||'<tr><td colspan="9">Aún no hay producción.</td></tr>';
 }
 async function renderWarehouse(){
  if(!companyId)return;const t=totals();
- $('wStock').textContent=fmt(t.stock);$('wPending').textContent=fmt(t.transit);$('wMovements').textContent=receiptMovements.length;
- $('warehousePendingRows').innerHTML=lots.filter(x=>x.made>x.received).map(x=>`<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td>${fmt(x.received)}</td><td><b class="warn">${fmt(x.made-x.received)}</b></td><td style="min-width:90px"><input id="whqty-${x.id}" type="number" min="1" max="${x.made-x.received}" value="${x.made-x.received}"></td><td><select id="whloc-${x.id}"><option>Almacén de producto terminado</option><option>Almacén norte</option><option>Embarques</option></select></td><td><button class="btn primary" onclick="receiveLot('${x.id}')">Confirmar</button></td></tr>`).join('')||'<tr><td colspan="9">No hay piezas pendientes de recibir.</td></tr>';
- $('warehouseHistoryRows').innerHTML=receiptMovements.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString('es-MX')}</td><td>${esc(x.production_lots?.lot_code||'')}</td><td>${esc(x.production_lots?.products?.name||'')}</td><td><b>${fmt(x.quantity)}</b></td><td>${esc(x.location||'Sin destino')}</td></tr>`).join('')||'<tr><td colspan="5">Aún no hay recepciones.</td></tr>';
+ $('wStock').textContent=fmt(t.stock);$('wPending').textContent=fmt(t.transit);$('wMovements').textContent=receiptMovements.filter(x=>x.movement_type==='receipt').length;
+ $('warehousePendingRows').innerHTML=lots.filter(x=>x.qc_good>x.received).map(x=>`<tr><td>${new Date(x.created_at).toLocaleDateString('es-MX')}</td><td><b>${esc(x.lot)}</b></td><td>${esc(x.product)}</td><td>${fmt(x.made)}</td><td class="up">${fmt(x.qc_good)}</td><td>${fmt(x.received)}</td><td><b class="warn">${fmt(x.qc_good-x.received)}</b></td><td style="min-width:90px"><input id="whqty-${x.id}" type="number" min="1" max="${x.qc_good-x.received}" value="${x.qc_good-x.received}"></td><td><select id="whloc-${x.id}"><option>Almacén de producto terminado</option><option>Almacén norte</option><option>Embarques</option></select></td><td><button class="btn primary" onclick="receiveLot('${x.id}')">Confirmar</button></td></tr>`).join('')||'<tr><td colspan="10">No hay piezas liberadas pendientes de recibir. Primero deben pasar por calidad.</td></tr>';
+ $('warehouseHistoryRows').innerHTML=receiptMovements.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString('es-MX')}</td><td>${esc(x.production_lots?.lot_code||'')}</td><td>${esc(x.production_lots?.products?.name||'')}</td><td><b>${x.movement_type==='receipt'?'+':'−'}${fmt(x.quantity)}</b></td><td>${esc(x.movement_type==='receipt'?(x.location||'Sin destino'):(x.source_location||'Salida anterior sin ubicación'))}</td></tr>`).join('')||'<tr><td colspan="5">Aún no hay movimientos.</td></tr>';
 }
 async function renderSales(){
  if(!companyId)return;const b=productBalances();
@@ -282,7 +455,7 @@ async function renderSales(){
  $('sProduct').innerHTML=productsCatalog.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
  $('salesOrderRows').innerHTML=salesLines.map(x=>{
   const remain=x.requested_qty-x.picked_qty-x.cancelled_qty, candidates=lots.filter(l=>l.product_id===x.product_id&&l.received>l.issued);
-  const picking=remain>0&&candidates.length?`<div style="min-width:230px;display:grid;gap:5px"><select id="picklot-${x.id}">${candidates.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${fmt(l.received-l.issued)} pzas</option>`).join('')}</select><input id="pickqty-${x.id}" type="number" min="1" max="${remain}" value="${Math.min(remain,candidates[0].received-candidates[0].issued)}"><button class="btn primary" onclick="pickSalesLine('${x.id}')">Registrar picking</button></div>`:'—';
+  const picking=remain>0&&candidates.length?`<div style="min-width:245px;display:grid;gap:5px"><select id="picklot-${x.id}" onchange="updatePickLocations('${x.id}')">${candidates.map(l=>`<option value="${l.id}">${esc(l.lot)} · ${fmt(l.received-l.issued)} pzas</option>`).join('')}</select><select id="pickloc-${x.id}">${warehouseLocationsForLot(candidates[0].id).map(loc=>`<option>${esc(loc)}</option>`).join('')}</select><input id="pickqty-${x.id}" type="number" min="1" max="${remain}" value="${Math.min(remain,candidates[0].received-candidates[0].issued)}"><button class="btn primary" onclick="pickSalesLine('${x.id}')">Registrar picking</button></div>`:'—';
   return `<tr><td><b>${esc(x.sales_orders?.order_number||'')}</b></td><td>${esc(x.sales_orders?.customer_name||'')}</td><td>${esc(x.products?.name||'')}</td><td>${fmt(x.requested_qty)}</td><td>${fmt(remain)}</td><td>${fmt(x.picked_qty)}</td><td><span class="pill">${esc(x.status)}</span></td><td>${picking}</td></tr>`;
  }).join('')||'<tr><td colspan="8">Todavía no hay órdenes.</td></tr>';
 }
@@ -297,7 +470,7 @@ async function createProductionFromModule(){
 }
 async function receiveLot(id){
  if(!ensureRole(['admin','warehouse']))return;const x=lots.find(l=>l.id===id),qty=Number($('whqty-'+id).value),location=$('whloc-'+id).value;
- if(!Number.isInteger(qty)||qty<1||qty>x.made-x.received)return alert('La cantidad supera lo pendiente de recibir.');
+ if(!Number.isInteger(qty)||qty<1||qty>x.qc_good-x.received)return alert('La cantidad supera lo pendiente de recibir.');
  const {error}=await sb.rpc('register_lot_movement',{p_lot_id:id,p_movement_type:'receipt',p_quantity:qty,p_location:location,p_order_number:null,p_notes:null});
  if(error)return alert(error.message);await refreshAll();alert('Recepción guardada. Puedes registrar otra entrega parcial del mismo lote.');
 }
@@ -308,11 +481,14 @@ async function createSalesCommitment(){
  const {data,error}=await sb.rpc('create_sales_commitment',{p_company_id:companyId,p_plant_id:plantId,p_order_number:order,p_customer_name:customer,p_product_id:product,p_quantity:qty,p_required_date:date});
  if(error)return alert(error.message);$('sOrder').value='';$('sCustomer').value='';await refreshAll();alert('Orden creada y cantidad comprometida correctamente.');
 }
+function warehouseLocationsForLot(lotId){const names=warehouseBalances().filter(x=>x.lot_id===lotId&&x.qty>0).map(x=>x.location);return [...new Set(names)];}
+function updatePickLocations(id){const lotId=$('picklot-'+id)?.value,sel=$('pickloc-'+id);if(sel)sel.innerHTML=warehouseLocationsForLot(lotId).map(n=>`<option>${esc(n)}</option>`).join('')||'<option>Sin almacén disponible</option>'}
 async function pickSalesLine(id){
- if(!ensureRole(['admin','warehouse']))return;const lotId=$('picklot-'+id)?.value,qty=Number($('pickqty-'+id)?.value);
+ if(!ensureRole(['admin','warehouse']))return;const lotId=$('picklot-'+id)?.value,location=$('pickloc-'+id)?.value,qty=Number($('pickqty-'+id)?.value);
  if(!lotId)return alert('No hay un lote recibido disponible para surtir.');
  if(!Number.isInteger(qty)||qty<1)return alert('Captura una cantidad válida.');
- const {error}=await sb.rpc('pick_sales_order_line',{p_order_line_id:id,p_lot_id:lotId,p_quantity:qty,p_location:'Embarques',p_notes:'Picking registrado desde DEMO'});
+ if(!location||location==='Sin almacén disponible')return alert('Selecciona un almacén con existencia para este lote.');
+ const {error}=await sb.rpc('pick_sales_order_line',{p_order_line_id:id,p_lot_id:lotId,p_quantity:qty,p_location:location,p_notes:'Picking registrado desde DEMO'});
  if(error)return alert(error.message);await refreshAll();alert('Picking registrado. Se actualizó el inventario y el compromiso de la orden.');
 }
 function generateLotReceiptQR(id){
@@ -357,7 +533,7 @@ function copyQRLink(){if(!currentQRLink)return alert('Primero genera un QR.');na
 function decodeHash(){try{let m=location.hash.match(/capture=([^&]+)/);return m?JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1]))))):null}catch(e){return null}}
 async function openMobile(p){
  currentPayload=p;showPage('mobile');
- if(p.lot_id){const {data,error}=await sb.from('production_lots').select('id,lot_code,produced_qty,received_qty,issued_qty,company_id,products(name),machines(name)').eq('id',p.lot_id).single();if(error)return $('mobileForm').innerHTML='<div class="notice">'+esc(error.message)+'</div>';p={...p,lot:data.lot_code,qty:p.stage==='receipt'?Math.max(0,data.produced_qty-data.received_qty):p.stage==='dispatch'?data.received_qty-data.issued_qty:data.produced_qty,product:data.products?.name||p.product,machine:data.machines?.name||p.machine,company_id:data.company_id};currentPayload=p}
+ if(p.lot_id){const {data,error}=await sb.from('production_lots').select('id,lot_code,produced_qty,received_qty,issued_qty,company_id,products(name),machines(name)').eq('id',p.lot_id).single();if(error)return $('mobileForm').innerHTML='<div class="notice">'+esc(error.message)+'</div>';p={...p,lot:data.lot_code,qty:p.stage==='receipt'?Math.max(0,Number(data.qc_good_qty??data.produced_qty)-data.received_qty):p.stage==='dispatch'?data.received_qty-data.issued_qty:data.produced_qty,product:data.products?.name||p.product,machine:data.machines?.name||p.machine,company_id:data.company_id};currentPayload=p}
  let fields=p.stage==='receipt'?`<div class="field"><label>Piezas recibidas físicamente</label><input id="mobQty" type="number" min="1" value="${p.qty}"></div><div class="field"><label>Ubicación de almacén</label><select id="mobLocation"><option>Almacén de producto terminado</option><option>Almacén norte</option><option>Embarques</option></select></div><div class="field full"><label>Observaciones / diferencia</label><textarea id="mobNotes"></textarea></div>`:p.stage==='production'?`<div class="field"><label>Piezas fabricadas</label><input id="mobQty" type="number" min="1" value="${p.qty}"></div><div class="field"><label>Horas de producción</label><input id="mobHours" type="number" step=".25" value="8"></div>`:`<div class="field"><label>Cantidad a surtir</label><input id="mobQty" type="number" min="1" value="${Math.min(p.qty,50)}"></div><div class="field"><label>Orden de venta</label><input id="mobOrder" value="${esc(p.order||'')}"></div>`;
  $('mobileForm').innerHTML=`<span class="pill green">QR reconocido · ${stageName(p.stage)}</span><h2>${stageName(p.stage)}</h2><p class="hint">Los datos del lote se consultaron desde la base central. Verifica y completa los campos.</p><div class="card" style="padding:11px;background:#f7f9fc;box-shadow:none"><div class="metric"><span>Folio</span><b>${esc(p.lot)}</b></div><div class="metric"><span>Producto</span><b>${esc(p.product)}</b></div><div class="metric"><span>Máquina</span><b>${esc(p.machine)}</b></div><div class="metric"><span>Cantidad referencia</span><b>${fmt(p.qty)} piezas</b></div></div><div class="fields" style="margin-top:14px">${fields}</div><div class="notice info">Debes iniciar sesión. El movimiento se registrará con tu usuario y se validará en la base central.</div><button class="btn primary" style="width:100%;padding:13px" onclick="submitMobile()">Confirmar y registrar movimiento</button><p class="hint" id="mobileResult"></p>`;
 }
