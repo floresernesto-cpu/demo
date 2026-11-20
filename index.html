@@ -58,7 +58,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
  <div class="authcard">
   <div class="logo" style="color:white;margin-bottom:14px"><svg viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M8 12h20v12H8zm28 0h20v12H36zM8 40h20v12H8zm28 0h20v12H36z" fill="#fff" opacity=".9"/><path d="M28 18h8v28h-8zM18 24v16m28-16v16M28 32h8" stroke="#14243a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="32" cy="32" r="4" fill="#20a477"/></svg></div>
   <h1>Acceso DEMO</h1>
-  <p>Acceso a la demostración. Inicia sesión con una cuenta creada en Supabase Authentication y asignada a una empresa activa.</p>
+  <p>Ingresa con las credenciales de acceso a la demostración.</p>
   <div id="configFields">
    <div class="field"><label>Supabase Project URL</label><input id="sbUrl" placeholder="https://xxxxxxxx.supabase.co"></div>
    <div class="field"><label>Supabase Publishable / anon key</label><input id="sbKey" placeholder="sb_publishable_... o anon key" autocomplete="off"></div>
@@ -66,7 +66,7 @@ footer{text-align:center;color:#8995a4;font-size:10px;padding:0 15px 22px}
    <div class="config-note">Estos datos se obtienen en Supabase → Project Settings / Connect. En el navegador solo se utiliza la clave publicable (anon/ publishable). Nunca coloques aquí la service_role o secret key.</div>
   </div>
   <div id="loginFields" class="hidden">
-   <div class="field"><label>Correo electrónico</label><input id="loginEmail" type="email" autocomplete="username" placeholder="usuario@empresa.com"></div>
+   <div class="field"><label>Usuario</label><input id="loginEmail" type="text" autocomplete="username" placeholder="USER"></div>
    <div class="field"><label>Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Contraseña"></div>
    <button class="btn primary" onclick="login()">Iniciar sesión</button>
    <button class="btn secondary" style="margin-top:8px" onclick="editConfig()">Cambiar conexión</button>
@@ -255,8 +255,11 @@ function initSupabase(){
  sb.auth.getSession().then(({data})=>{if(data.session)afterLogin(data.session.user)});
 }
 async function login(){
- const email=$('loginEmail').value.trim(),password=$('loginPassword').value;
- if(!email||!password)return msg('authMessage','Captura correo y contraseña.');
+ const loginId=$('loginEmail').value.trim(),password=$('loginPassword').value;
+ if(!loginId||!password)return msg('authMessage','Captura usuario y contraseña.');
+ // Alias de demostración: USER se traduce a la cuenta interna de Supabase.
+ // Los demás usuarios pueden seguir ingresando con su correo habitual.
+ const email=loginId.toUpperCase()==='USER'?'user.demo@demo.invalid':loginId;
  const {data,error}=await sb.auth.signInWithPassword({email,password});
  if(error)return msg('authMessage',error.message);
  await afterLogin(data.user);
@@ -270,7 +273,7 @@ async function afterLogin(user){
  if(pe||!plants?.length){await sb.auth.signOut();return msg('authMessage','La empresa no tiene una planta activa configurada.')}
  plantId=plants[0].id;
  const {data:profile}=await sb.from('profiles').select('full_name').eq('user_id',user.id).maybeSingle();
- currentProfile=profile?.full_name||user.email;
+ currentProfile=profile?.full_name||(user.email==='user.demo@demo.invalid'?'USER':user.email);
  $('currentUser').textContent=currentProfile+' · '+currentRole;
  $('logoutBtn').style.display='inline-block';$('authScreen').classList.add('hidden');
  $('connectionStatus').textContent='Conectado · '+(m.companies?.name||'Empresa');
